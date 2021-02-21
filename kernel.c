@@ -19,7 +19,7 @@ void clear(char *buffer, int length)
     int i;
     for (i = 0; i < length; i++)
     {
-        *(buffer + i) = 0x000000;
+        *(buffer + i) = 0x0000;
     }
 }
 
@@ -43,7 +43,7 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
 
 void printString(char *string)
 {
-    char* p = string;
+    char *p = string;
     while (*p != 0x0)
     {
         interrupt(0x10, 0x0e00 + *p, 0x000A, 0, 0);
@@ -51,7 +51,8 @@ void printString(char *string)
     }
     return;
 }
-void readString(char *string) {
+void readString(char *string)
+{
     return;
 }
 
