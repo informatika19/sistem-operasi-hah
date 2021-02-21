@@ -1,0 +1,5 @@
+kernel
+*.o
+*.img
+bootloader
+*.txt
