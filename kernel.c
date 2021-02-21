@@ -10,9 +10,12 @@ int main()
 {
 
     makeInterrupt21();
-    // int a = interrupt(0x16, 0, 0, 0, 0);
-    while (1)
-        ;
+    
+    while (1) {
+        char a[100];
+        readString(a);
+        printString(a);
+    }
 }
 
 void clear(char *buffer, int length)
