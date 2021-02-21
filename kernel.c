@@ -5,6 +5,7 @@ void clear(char *buffer, int length);
 
 int main()
 {
+
     makeInterrupt21();
     while (1);
 }
@@ -36,7 +37,14 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
     }
 }
 
-void printString(char *string) {
+void printString(char *string)
+{
+    char* p = string;
+    while (*p != 0x0)
+    {
+        interrupt(0x10, 0x0e00 + *p, 0x000A, 0, 0);
+        p++;
+    }
     return;
 }
 void readString(char *string) {
