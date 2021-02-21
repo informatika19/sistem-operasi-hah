@@ -10,8 +10,9 @@ int main()
 {
 
     makeInterrupt21();
-    
-    while (1) {
+
+    while (1)
+    {
         char a[100];
         readString(a);
     }
@@ -61,17 +62,24 @@ void readString(char *string)
     char AH = (char)(input >> 8);
     char AL = (char)(input);
     int length = 0;
-    while (!(AL == '\r' || AH == 0x48 || AH == 0x50))
+    while (!(AL == '\r'))
     {
-        if (AL == '\b' && length > 0)
+        if (AL != 0x0)
         {
-            printString("\b \b");
-            string[length--] = 0x00;
+            if (AL == '\b' && length > 0)
+            {
+                printString("\b \b");
+                string[length--] = 0x00;
+            }
+            else
+            {
+                printString(&AL);
+                string[length++] = AL;
+            }
         }
         else
         {
-            printString(&AL);
-            string[length++] = AL;
+            //DISINI BEB <3
         }
         input = interrupt(0x16, 0, 0, 0, 0);
         AH = (char)(input >> 8);
