@@ -14,7 +14,6 @@ int main()
     while (1) {
         char a[100];
         readString(a);
-        printString(a);
     }
 }
 
@@ -71,6 +70,7 @@ void readString(char *string)
         }
         else
         {
+            printString(&AL);
             string[length++] = AL;
         }
         input = interrupt(0x16, 0, 0, 0, 0);
