@@ -3,10 +3,14 @@ void printString(char *string);
 void readString(char *string);
 void clear(char *buffer, int length);
 
+int mod(int a, int b);
+int strlen (char * string);
+
 int main()
 {
 
     makeInterrupt21();
+    // int a = interrupt(0x16, 0, 0, 0, 0);
     while (1);
 }
 
@@ -49,4 +53,19 @@ void printString(char *string)
 }
 void readString(char *string) {
     return;
+}
+
+int mod(int a, int b) {
+    return (a - b * (a / b)); 
+}
+
+int strlen (char * string) {
+    char * a = string;
+    int ans = 0;
+    while (*a != 0x0) {
+        a ++;
+        ans += 1;
+    }
+    return ans;
+
 }
