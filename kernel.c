@@ -6,8 +6,7 @@ void clear(char *buffer, int length);
 int main()
 {
     makeInterrupt21();
-    while (1)
-        ;
+    while (1);
 }
 
 void clear(char *buffer, int length)
@@ -35,4 +34,11 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
     default:
         printString("Invalid interrupt");
     }
+}
+
+void printString(char *string) {
+    return;
+}
+void readString(char *string) {
+    return;
 }
