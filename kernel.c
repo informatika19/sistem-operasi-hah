@@ -2,6 +2,7 @@ void handleInterrupt21(int AX, int BX, int CX, int DX);
 void printString(char *string);
 void readString(char *string);
 void clear(char *buffer, int length);
+void bootLogo();
 
 int mod(int a, int b);
 int strlen(char *string);
@@ -10,7 +11,7 @@ int main()
 {
 
     makeInterrupt21();
-
+    bootLogo();
     while (1)
     {
         char a[100];
@@ -90,6 +91,19 @@ void readString(char *string)
     return;
 }
 
+void bootLogo(){                                                  
+    printString("8 8888        8          .8.          8 8888        8\r\n");
+    printString("8 8888        8         .888.         8 8888        8\r\n");
+    printString("8 8888        8        :88888.        8 8888        8\r\n");
+    printString("8 8888        8       . `88888.       8 8888        8\r\n");
+    printString("8 8888        8      .8. `88888.      8 8888        8\r\n");
+    printString("8 8888        8     .8`8. `88888.     8 8888        8\r\n");
+    printString("8 8888888888888    .8' `8. `88888.    8 8888888888888\r\n");
+    printString("8 8888        8   .8'   `8. `88888.   8 8888        8\r\n"); 
+    printString("8 8888        8  .888888888. `88888.  8 8888        8\r\n");
+    printString("8 8888        8 .8'       `8. `88888. 8 8888        8\r\n");                             
+}
+
 int mod(int a, int b)
 {
     return (a - b * (a / b));
@@ -106,3 +120,4 @@ int strlen(char *string)
     }
     return ans;
 }
+
