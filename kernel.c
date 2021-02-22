@@ -5,9 +5,6 @@ void clear(char *buffer, int length);
 void bootLogo();
 void bootImage();
 
-int mod(int a, int b);
-int strlen(char *string);
-
 int main()
 {
 
@@ -150,21 +147,3 @@ void bootImage() {
 
     }
 }
-
-int mod(int a, int b)
-{
-    return (a - b * (a / b));
-}
-
-int strlen(char *string)
-{
-    char *a = string;
-    int ans = 0;
-    while (*a != 0x0)
-    {
-        a++;
-        ans += 1;
-    }
-    return ans;
-}
-
