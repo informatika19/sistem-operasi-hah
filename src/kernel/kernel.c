@@ -1,9 +1,22 @@
+// Kernel
 void handleInterrupt21(int AX, int BX, int CX, int DX);
 void printString(char *string);
 void readString(char *string);
 void clear(char *buffer, int length);
+void readSector(char *buffer, int sector);
+void writeSector(char *buffer, int sector);
+
+// Boot Logo & Image
 void bootLogo();
 void bootImage();
+
+// Math
+int mod(int a, int b);
+int div(int a, int b);
+
+// String
+int strlen(char *string);
+// int streq(char *first, char *second);
 
 int main()
 {
@@ -16,10 +29,13 @@ int main()
     interrupt(0x16, 0, 0, 0, 0);
     interrupt(0x10, 0x0003, 0, 0, 0);
     bootLogo();
+
+    
     while (1)
     {
-        char a[100];
+        char a[1000];
         readString(a);
+        //writeSector(a, 0x101);
     }
 }
 
@@ -39,12 +55,24 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
     AH = (char)(AX >> 8);
     switch (AL)
     {
-    case 0x0:
+    case 0x00:
         printString(BX);
         break;
-    case 0x1:
+    case 0x01:
         readString(BX);
         break;
+    case 0x02:
+        readSector(BX, CX);
+        break;
+    case 0x03:
+        writeSector(BX, CX);
+        break;
+    // case 0x04:
+    //     readFile(BX, CX, DX, AH);
+    //     break;
+    // case 0x05:
+    //     writeFile(BX, CX, DX, AH);
+    //     break;
     default:
         printString("Invalid interrupt");
     }
@@ -95,7 +123,8 @@ void readString(char *string)
     return;
 }
 
-void bootLogo(){                                                  
+void bootLogo()
+{
     printString("8 8888        8          .8.          8 8888        8\r\n");
     printString("8 8888        8         .888.         8 8888        8\r\n");
     printString("8 8888        8        :88888.        8 8888        8\r\n");
@@ -103,21 +132,25 @@ void bootLogo(){
     printString("8 8888        8      .8. `88888.      8 8888        8\r\n");
     printString("8 8888        8     .8`8. `88888.     8 8888        8\r\n");
     printString("8 8888888888888    .8' `8. `88888.    8 8888888888888\r\n");
-    printString("8 8888        8   .8'   `8. `88888.   8 8888        8\r\n"); 
+    printString("8 8888        8   .8'   `8. `88888.   8 8888        8\r\n");
     printString("8 8888        8  .888888888. `88888.  8 8888        8\r\n");
-    printString("8 8888        8 .8'       `8. `88888. 8 8888        8\r\n");                             
+    printString("8 8888        8 .8'       `8. `88888. 8 8888        8\r\n");
 }
 
-void bootImage() {
+void bootImage()
+{
     int i;
     int j;
     int map[30][30];
-    for (i = 0; i < 30; i++){
-        for (j = 0; j < 30; j++){
+    for (i = 0; i < 30; i++)
+    {
+        for (j = 0; j < 30; j++)
+        {
             map[i][j] = 0x0;
         }
     }
-    for (i = 0; i < 30; i++){
+    for (i = 0; i < 30; i++)
+    {
         map[i][16] = 0x9;
         map[11][3] = 0x1;
         map[12][3] = 0x2;
@@ -129,7 +162,8 @@ void bootImage() {
         map[18][3] = 0x8;
     }
 
-    for (j = 3; j < 30; j++){
+    for (j = 3; j < 30; j++)
+    {
         map[1][j] = 0x1;
         map[8][j] = 0x2;
         map[11][j] = 0x3;
@@ -138,12 +172,13 @@ void bootImage() {
         map[28][j] = 0x2;
     }
 
-    for (i = 0; i < 300; i++) {
-        for (j = 0; j < 300; j++) {
-            int is = i/10;
-            int js = j/10;
+    for (i = 0; i < 300; i++)
+    {
+        for (j = 0; j < 300; j++)
+        {
+            int is = i / 10;
+            int js = j / 10;
             interrupt(0x10, 0x0C00 + map[is][js], 0, i, j);
         }
-
     }
 }

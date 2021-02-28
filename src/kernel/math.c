@@ -1,6 +1,5 @@
 int mod(int a, int b);
 int div(int a, int b);
-int strlen(char *string);
 
 int mod(int a, int b)
 {
@@ -39,16 +38,4 @@ int div(int a, int b)
             return ((-1) * (2 + div(a - b, b)));
         }
     }    
-}
-
-int strlen(char *string)
-{
-    char *a = string;
-    int ans = 0;
-    while (*a != 0x0)
-    {
-        a++;
-        ans += 1;
-    }
-    return ans;
 }
