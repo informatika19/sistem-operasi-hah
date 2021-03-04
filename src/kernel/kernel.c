@@ -15,7 +15,7 @@ int mod(int a, int b);
 int div(int a, int b);
 
 // String
-int strlen(char *string);
+// int strlen(char *string);
 // int streq(char *first, char *second);
 
 int main()
@@ -29,13 +29,14 @@ int main()
     interrupt(0x16, 0, 0, 0, 0);
     interrupt(0x10, 0x0003, 0, 0, 0);
     bootLogo();
+    interrupt(0x13, 0x301, "string", div(9, 36) * 0x100 + mod(9, 18) + 1, mod(div(9, 18), 2) * 0x100);
 
     
     while (1)
     {
         char a[1000];
         readString(a);
-        //writeSector(a, 0x101);
+        // writeSector(a, 9);
     }
 }
 
@@ -53,6 +54,9 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
     char AL, AH;
     AL = (char)(AX);
     AH = (char)(AX >> 8);
+
+    
+
     switch (AL)
     {
     case 0x00:
@@ -61,12 +65,12 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
     case 0x01:
         readString(BX);
         break;
-    case 0x02:
-        readSector(BX, CX);
-        break;
-    case 0x03:
-        writeSector(BX, CX);
-        break;
+    // case 0x02:
+    //     readSector("hello", CX);
+    //     break;
+    // case 0x03:
+    //     writeSector("hello", CX);
+    //     break;
     // case 0x04:
     //     readFile(BX, CX, DX, AH);
     //     break;
