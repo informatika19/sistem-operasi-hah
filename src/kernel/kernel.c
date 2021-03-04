@@ -3,40 +3,33 @@ void handleInterrupt21(int AX, int BX, int CX, int DX);
 void printString(char *string);
 void readString(char *string);
 void clear(char *buffer, int length);
-void readSector(char *buffer, int sector);
-void writeSector(char *buffer, int sector);
-
-// Boot Logo & Image
-void bootLogo();
-void bootImage();
-
-// Math
 int mod(int a, int b);
 int div(int a, int b);
-
-// String
-// int strlen(char *string);
-// int streq(char *first, char *second);
+void readSector(char *buffer, int sector);
+void writeSector(char *buffer, int sector);
+void bootLogo();
+void bootImage();
 
 int main()
 {
 
     makeInterrupt21();
-    // bootLogo();
-    interrupt(0x10, 0x0012, 0, 0, 0);
-
-    bootImage();
-    interrupt(0x16, 0, 0, 0, 0);
-    interrupt(0x10, 0x0003, 0, 0, 0);
     bootLogo();
-    interrupt(0x13, 0x301, "string", div(9, 36) * 0x100 + mod(9, 18) + 1, mod(div(9, 18), 2) * 0x100);
+    // interrupt(0x10, 0x0012, 0, 0, 0);
 
-    
+    // bootImage();
+    // interrupt(0x16, 0, 0, 0, 0);
+    // interrupt(0x10, 0x0003, 0, 0, 0);
+    // bootLogo();
+
     while (1)
     {
-        char a[1000];
-        readString(a);
-        // writeSector(a, 9);
+        char test[512];
+        clear(test, 512);
+        writeSector("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", 2);
+        readSector(test, 2);
+        printString(test);
+        readString(test);
     }
 }
 
@@ -55,8 +48,6 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
     AL = (char)(AX);
     AH = (char)(AX >> 8);
 
-    
-
     switch (AL)
     {
     case 0x00:
@@ -65,18 +56,12 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
     case 0x01:
         readString(BX);
         break;
-    // case 0x02:
-    //     readSector("hello", CX);
-    //     break;
-    // case 0x03:
-    //     writeSector("hello", CX);
-    //     break;
-    // case 0x04:
-    //     readFile(BX, CX, DX, AH);
-    //     break;
-    // case 0x05:
-    //     writeFile(BX, CX, DX, AH);
-    //     break;
+    case 0x02:
+        readSector(BX, CX);
+        break;
+    case 0x03:
+        writeSector(BX, CX);
+        break;
     default:
         printString("Invalid interrupt");
     }
@@ -113,10 +98,6 @@ void readString(char *string)
                 printString(&AL);
                 string[length++] = AL;
             }
-        }
-        else
-        {
-            //DISINI BEB <3
         }
         input = interrupt(0x16, 0, 0, 0, 0);
         AH = (char)(input >> 8);
