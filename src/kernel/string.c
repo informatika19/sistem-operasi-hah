@@ -32,6 +32,24 @@ int strcmp(char *first, char *second)
         return 1;
     }
 }
+char strswith(char *first, char *second, int length)
+{
+    int i;
+
+    for (i = 0; i < length; i++)
+    {
+        if (second[i] == 0)
+        {
+            return 1;
+        }
+        if (first[i] != second[i])
+        {
+            return 0;
+        }
+    }
+
+    return 1;
+}
 
 // int streq(char *first, char *second){
 // 	int i;
