@@ -1,12 +1,24 @@
 // Kernel
 void handleInterrupt21(int AX, int BX, int CX, int DX);
+
+// String and Buffer clear
 void printString(char *string);
 void readString(char *string);
 void clear(char *buffer, int length);
+int strcmp(char *first, char *second);
+int strlen(char *string);
+char strswith(char *first, char *second, int length);
+
+// Math
 int mod(int a, int b);
 int div(int a, int b);
+
+// Sector and File
 void readSector(char *buffer, int sector);
 void writeSector(char *buffer, int sector);
+void readFile(char *buffer, char *path, int *result, char parentIndex);
+void writeFile(char *buffer, char *path, int *sectors, char parentIndex);
+
 void bootLogo();
 void bootImage();
 
@@ -15,21 +27,15 @@ int main()
 
     makeInterrupt21();
     bootLogo();
-    // interrupt(0x10, 0x0012, 0, 0, 0);
+    interrupt(0x10, 0x0012, 0, 0, 0);
 
-    // bootImage();
-    // interrupt(0x16, 0, 0, 0, 0);
-    // interrupt(0x10, 0x0003, 0, 0, 0);
-    // bootLogo();
+    bootImage();
+    interrupt(0x16, 0, 0, 0, 0);
+    interrupt(0x10, 0x0003, 0, 0, 0);
+    bootLogo();
 
     while (1)
     {
-        char test[512];
-        clear(test, 512);
-        writeSector("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", 2);
-        readSector(test, 2);
-        printString(test);
-        readString(test);
     }
 }
 
@@ -61,6 +67,9 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
         break;
     case 0x03:
         writeSector(BX, CX);
+        break;
+    case 0x04:
+        readFile(BX, CX, DX, AH);
         break;
     default:
         printString("Invalid interrupt");
