@@ -10,6 +10,29 @@ int strlen(char *string)
     return ans;
 }
 
+int strcmp(char *first, char *second)
+{
+    if (strlen(first) != strlen(second))
+    {
+        return 0;
+    }
+    else
+    {
+        int idx = 0;
+        char *temp = first;
+        while (*temp != 0x00)
+        {
+            if (first[idx] != second[idx])
+            {
+                return 0;
+            }
+            temp++;
+            idx++;
+        }
+        return 1;
+    }
+}
+
 // int streq(char *first, char *second){
 // 	int i;
 //     if (strlen(first) != strlen(second)){
