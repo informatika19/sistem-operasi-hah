@@ -1,5 +1,5 @@
 #!/bin/bash
-./image-creator.sh > /dev/null
+./image-creator.sh > /dev/null 2>&1
 
 ./kernel.sh
 
