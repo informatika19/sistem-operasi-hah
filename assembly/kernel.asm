@@ -8,6 +8,8 @@ global _putInMemory
 global _interrupt
 global _makeInterrupt21
 extern _handleInterrupt21
+global _launchProgramExe
+global _launchProgram
 
 ;void putInMemory (int segment, int address, char character)
 _putInMemory:
@@ -78,3 +80,51 @@ _interrupt21ServiceRoutine:
 	pop dx
 
 	iret
+
+;this is called to start a program that is loaded into memory
+;void launchProgramExe(int segment)
+_launchProgramExe:
+;our_segment,cs+our_segment,valStackSeg+our_segment,ip,sp);
+	mov bp,sp
+	mov bx,[bp+4]	;get the segment into bx
+
+	mov ax,cs	;modify the jmp below to jump to our segment
+	mov ds,ax	;this is self-modifying code
+	mov si,#jumpexe
+	mov [si+3],bx	;change the first 0000 to the segment
+	mov bx,[bp+8]
+	mov [si+1],bx
+
+	
+	mov bx,[bp+2]
+	mov ds, bx
+	mov es, bx
+	mov bx,[bp+6]
+	mov ss, bx
+	mov bx,[bp+10]
+	mov sp, bx
+
+
+jumpexe:
+	jmp #0x0000:0x0000	;and start running (the first 0000 is changed above)
+
+;this is called to start a program that is loaded into memory
+;void launchProgram(int segment)
+_launchProgram:
+	mov bp,sp
+	mov bx,[bp+2]	;get the segment into bx
+
+	mov ax,cs	;modify the jmp below to jump to our segment
+	mov ds,ax	;this is self-modifying code
+	mov si,#jump
+	mov [si+3],bx	;change the first 0000 to the segment
+
+	mov ds,bx	;set up the segment registers
+	mov ss,bx
+	mov es,bx
+
+	mov sp,#0xfff0	;set up the stack pointer
+	mov bp,#0xfff0
+
+jump:
+	jmp #0x0000:0x0000	;and start running (the first 0000 is changed above)
