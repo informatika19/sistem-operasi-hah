@@ -1,5 +1,5 @@
 #Modify here if there is new kernel file
-KERNEL_FILE=("math" "file" "sector" "kernel")
+KERNEL_FILE=("math" "string" "file" "sector" "kernel")
 for f in ${KERNEL_FILE[@]}; do
     bcc -ansi -c -o ./bin/kernel/$f.o ./src/kernel/$f.c
 done
