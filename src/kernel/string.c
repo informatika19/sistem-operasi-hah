@@ -54,8 +54,9 @@ char strswith(char *first, char *second, int length)
 //string bounded compare
 int strbcmp(char *buffer, int length, char *string)
 {
-    char first[length + 1];
-    char i = 0x00;
+    char i;
+    char first[8192];
+    i = 0x00;
     for (i = 0; i < length; i++)
     {
         first[i] = buffer[i];
