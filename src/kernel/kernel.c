@@ -130,10 +130,10 @@ void readString(char *string)
 
 void executeProgram(char *filename, int segment, int *success, char parentIndex)
 {
-    char buffer[512 * 16];
+    char buffer[8192];
     int i;
 
-    clear(buffer, 512 * 16);
+    clear(buffer, 8192);
 
     readFile(buffer, filename, success, parentIndex);
 
@@ -142,12 +142,13 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
         return;
     }
 
-    for (i = 0; i < 512 * 16; i++)
+    //8192 = 512 *16
+    for (i = 0; i < 8192; i++)
     {
         putInMemory(segment, i, buffer[i]);
     }
 
-    launchProgramEXE(segment);
+    launchProgramExe(segment);
 }
 
 void bootLogo()
