@@ -90,7 +90,7 @@ _launchProgramExe:
 
 	mov ax,cs	;modify the jmp below to jump to our segment
 	mov ds,ax	;this is self-modifying code
-	mov si,#jumpexe
+	mov si,jumpexe
 	mov [si+3],bx	;change the first 0000 to the segment
 	mov bx,[bp+8]
 	mov [si+1],bx
@@ -106,7 +106,7 @@ _launchProgramExe:
 
 
 jumpexe:
-	jmp #0x0000:0x0000	;and start running (the first 0000 is changed above)
+	jmp 0x0000:0x0000	;and start running (the first 0000 is changed above)
 
 ;this is called to start a program that is loaded into memory
 ;void launchProgram(int segment)
@@ -116,15 +116,15 @@ _launchProgram:
 
 	mov ax,cs	;modify the jmp below to jump to our segment
 	mov ds,ax	;this is self-modifying code
-	mov si,#jump
+	mov si,jump
 	mov [si+3],bx	;change the first 0000 to the segment
 
 	mov ds,bx	;set up the segment registers
 	mov ss,bx
 	mov es,bx
 
-	mov sp,#0xfff0	;set up the stack pointer
-	mov bp,#0xfff0
+	mov sp,0xfff0	;set up the stack pointer
+	mov bp,0xfff0
 
 jump:
-	jmp #0x0000:0x0000	;and start running (the first 0000 is changed above)
+	jmp 0x0000:0x0000	;and start running (the first 0000 is changed above)
