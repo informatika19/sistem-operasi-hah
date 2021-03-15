@@ -101,6 +101,7 @@ int pathIndex(char *file, char parent, char *path)
     }
     else
     {
+        // File not found atau file tersebut adalah folder
         return -1;
     }
 }
@@ -115,7 +116,7 @@ void readFile(char *buffer, char *path, int *result, char parentIndex)
 
     int P = pathIndex(file, parentIndex, path);
 
-    if (P == -1 || (P >> 8) == 0x1)
+    if (P == -1)
     {
         *result = -1;
         return;
@@ -130,7 +131,7 @@ void readFile(char *buffer, char *path, int *result, char parentIndex)
         {
             break;
         }
-        readSector(&(buffer[i * 512]), sector[i]);
+        readSector(&(buffer[i * 512]), sector[S * 16 + i]);
     }
     *result = 1;
 }
@@ -190,6 +191,16 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
         return;
     }
     // Todo : Cek apakah di directory yang sama terdapat nama file yang sama!!
+    for (dirRow = 0; dirRow < 64; dirRow ++)
+    {
+        if (dir[dirRow * 16] == parentIndex && strcmp(path, dir + (dirRow * 16 + 2)))
+        {
+            // Udah ada di file yang sama
+            *sector = -1;
+            return;
+        }
+    }
+
 
     int bufferSize = strlen(buffer);
     int sectorNeeded = div(bufferSize, 512);
