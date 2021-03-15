@@ -108,6 +108,12 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
     char sector[512];
     char map[512];
 
+    char *pathTemp;
+    int dirRow, emptyDirEntry, sectorsRow;
+    int sectorWritten, emptyMapPos, emptySectorEntry;
+    int emptySector, bufferSize;
+    int sectorNeeded, tempIndex;
+
     readSector(file, 0x101);
     readSector(file + 512, 0x102);
 
@@ -116,12 +122,6 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
         *sectors = -4;
         return;
     }
-
-    char *pathTemp;
-    int dirRow, emptyDirEntry, sectorsRow;
-    int sectorWritten, emptyMapPos, emptySectorEntry;
-    int emptySector, bufferSize;
-    int sectorNeeded, tempIndex;
 
     readSector(map, 0x103);
     // Cek file yang kosong
@@ -200,6 +200,7 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
 
         emptyMapPos = getNextSector(map);
         map[emptyMapPos] = 0xFF;
+        clearSector(emptyMapPos);
         writeSector(buffer + sectorWritten * 512, emptyMapPos);
         sector[emptySectorEntry * 16 + sectorWritten] = emptyMapPos;
         sectorWritten++;
