@@ -1,7 +1,13 @@
 int pathIndex(char parent, char *path);
+char strswith(char *first, char *second, int length);
+int strcmp(char *first, char *second);
+int strbcmp(char *buffer, int length, char *string);
 void printString(char *string);
 void printCurrentDirectory(char currentDirectory);
 void splitString(char *buffer, char *first, char *second, char delimiter);
+void strcpy (char * src, char * dst);
+void clear(char *buffer, int length);
+int strlen(char *string);
 
 int main()
 {
@@ -10,61 +16,110 @@ int main()
     char parameter[256];
     char file[1024];
     char fileBuffer[512];
+    char commandHistory[4][256];
     char currentDirectory = 0xFF;
-    // // char arrowKeyPressed = 0;
+
     int i;
     int indexToMove;
     int flag;
-
-    //clear()
+    int historyPointer;
+    int historyCount = 0;
+    int arrowPressed = 0;
+    historyPointer = -1; 
+    
+    clear(commandHistory, 256 * 4);
     while (1)
     {
-        // // if (!arrowKeyPressed)
-        // // {
-        // //     printCurrentDirectory(currentDirectory);
-        // // }
-        printCurrentDirectory(currentDirectory);
-        interrupt(0x21, 0x01, command, 0, 0);
-        if (strbcmp(command, 3, "cd"))
+        if (arrowPressed == 0)
         {
-            splitString(command, program, parameter, " ");
-            indexToMove = pathIndex(currentDirectory, parameter);
-            if (indexToMove == -1)
-            {
-                printString("No such folder");
-            }
-            else
-            {
-                currentDirectory = indexToMove;
-            }
+            printCurrentDirectory(currentDirectory);
         }
-        else if (strbcmp(command, 3, "ls"))
+        interrupt(0x21, 0x01, command, 0, 0);
+        if (command[0] == 0x0)
         {
-            interrupt(0x21, 0x02, file, 0x101, 0);
-            interrupt(0x21, 0x02, file + 512, 0x102, 0);
-            for (i = 0; i < 64; i++)
+            if (command[1] == 0x48) // Key up
             {
-                if (file[i * 16] == currentDirectory)
+                if (historyPointer < historyCount - 1) // Masih bisa up
                 {
-                    printString(file + i * 16 + 2);
-                    printString("\n\r");
+                    historyPointer ++;
+                    printString(commandHistory + historyPointer * 256);
                 }
             }
+            else if (command[1] == 0x50) // Key down
+            {
+                if (historyPointer >= 0) // Masih bisa down
+                {
+                    historyPointer --;
+                    if (historyPointer != -1)
+                    {
+                        printString(command + historyPointer * 256);
+                    }
+                }
+                
+            }
+            arrowPressed = 1;
         }
-        else if (strbcmp(command, 4, "cat"))
+        else 
         {
-            splitString(command, program, parameter, " ");
-            interrupt(0x21, (currentDirectory << 8) + 0x04, fileBuffer, parameter, &flag);
+            if (strbcmp(command, 3, "cd"))
+            {
+                splitString(command, program, parameter, ' ');
+                indexToMove = pathIndex(currentDirectory, parameter);
+                if (indexToMove == -1)
+                {
+                    printString("No such folder");
+                }
+                else
+                {
+                    currentDirectory = indexToMove;
+                }
+            }
+            else if (strbcmp(command, 3, "ls"))
+            {
+                interrupt(0x21, 0x02, file, 0x101, 0);
+                interrupt(0x21, 0x02, file + 512, 0x102, 0);
+                for (i = 0; i < 64; i++)
+                {
+                    if (file[i * 16] == currentDirectory)
+                    {
+                        printString(file + i * 16 + 2);
+                        printString("\n\r");
+                    }
+                }
 
-            if (flag == -1)
-            {
-                printString("No such file\n\r");
             }
-            else
+            else if (strbcmp(command, 4, "cat"))
             {
-                printString(fileBuffer);
+                splitString(command, program, parameter, ' ');
+                interrupt(0x21, (currentDirectory << 8) + 0x04, fileBuffer, parameter, &flag);
+
+                if (flag == -1)
+                {
+                    printString("No such file\n\r");
+                }
+                else
+                {
+                    printString(fileBuffer);
+                }
             }
+            if (historyCount < 4)
+            {
+                historyCount ++;
+            }
+            if (historyCount == 4)
+            {
+                for (i = 3; i >= 1;i++)
+                {
+                    clear(commandHistory + 256 * i, 256);
+                    strcpy(commandHistory + 256 * (i - 1), commandHistory + 256 * i);
+                }
+            }
+            strcpy(command, commandHistory);
+            historyPointer = -1;
+            arrowPressed = 0;
+            
         }
+        
     }
 }
 
@@ -93,8 +148,9 @@ int strcmp(char *first, char *second)
 
 int strbcmp(char *buffer, int length, char *string)
 {
-    char first[length + 1];
-    char i = 0x00;
+    char i;
+    char first[8192];
+    i = 0x00;
     for (i = 0; i < length; i++)
     {
         first[i] = buffer[i];
@@ -106,12 +162,13 @@ int strbcmp(char *buffer, int length, char *string)
 int pathIndex(char parent, char *path)
 {
     char file[1024];
-    interrupt(0x21, 0x02, file, 0x101, 0);
-    interrupt(0x21, 0x02, file + 512, 0x102, 0);
+
     char P = parent;
     char pos = 0x00;
     char idx = 0x00;
 
+    interrupt(0x21, 0x02, file, 0x101, 0);
+    interrupt(0x21, 0x02, file + 512, 0x102, 0);
     if (path[0] == '/')
     {
         pos++;
@@ -187,13 +244,14 @@ void printString(char *string)
 
 void printCurrentDirectory(char currentDirectory)
 {
-    printString("~/");
     char folderOrder[32];
     char stringToShow[256];
     char dir[1024];
     int i;
     int fileNameIdx;
     int current;
+    
+    printString("~/");
     current = 0;
     if (currentDirectory != 0xFF) // Sekarang di root
     {
@@ -282,4 +340,36 @@ void splitString(char *buffer, char *first, char *second, char delimiter)
 
         pointer++;
     }
+}
+
+void strcpy (char * src, char * dst)
+{
+    char * temp = src;
+    int index;
+    index = 0;
+    while (*temp != 0x0)
+    {
+        dst[index] = *temp;
+        temp ++;
+        index ++;
+    }
+}
+void clear(char *buffer, int length)
+{
+    int i;
+    for (i = 0; i < length; i++)
+    {
+        buffer[i] = 0x0;
+    }
+}
+int strlen(char *string)
+{
+    char *a = string;
+    int ans = 0;
+    while (*a != 0x0)
+    {
+        a++;
+        ans += 1;
+    }
+    return ans;
 }

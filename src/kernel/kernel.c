@@ -31,7 +31,7 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
 
 int main()
 {
-
+    int flag;
     makeInterrupt21();
     bootLogo();
     interrupt(0x10, 0x0012, 0, 0, 0);
@@ -41,9 +41,7 @@ int main()
     interrupt(0x10, 0x0003, 0, 0, 0);
     bootLogo();
 
-    while (1)
-    {
-    }
+    executeProgram("shell", 0x2000, &flag, 0xFF);
 }
 
 void clear(char *buffer, int length)
@@ -106,6 +104,19 @@ void readString(char *string)
     int length = 0;
     while (!(AL == '\r'))
     {
+        if (AH == 0X48 || AH == 0x50)
+        {
+            length --;
+            while (length >= 0)
+            {
+                string[length] = 0x00;
+                length -= 1;
+                printString("\b \b");
+            }
+            string[0] = 0x0;
+            string[1] = AH;
+            return;
+        }
         if (AL != 0x0)
         {
             if (AL == '\b' && length > 0)

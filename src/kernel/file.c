@@ -179,6 +179,7 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
     }
 
     // Edit files
+    clear(file+emptyDirEntry*16, 16);
     file[emptyDirEntry * 16] = parentIndex;
     file[emptyDirEntry * 16 + 1] = emptySectorEntry;
     pathTemp = path;
