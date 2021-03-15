@@ -3,7 +3,6 @@ int pathIndex(char *file, char parent, char *path)
     char P = parent;
     char pos = 0x00;
     char idx = 0x00;
-    char readingState = 0x00;
 
     if (path[0] == '/')
     {
@@ -13,7 +12,15 @@ int pathIndex(char *file, char parent, char *path)
 
     while (path[pos] != 0x00)
     {
-        if (path[pos] == '.' && path[pos + 1] == '.' && path[pos + 2] == '/')
+        if (strbcmp(path + pos, 1, "/"))
+        {
+            if (strbcmp(path + pos, 2, "//"))
+            {
+                return -1;
+            }
+            pos++;
+        }
+        else if (strbcmp(path + pos, 3, "../"))
         {
             if (P == 0xFF)
             {
@@ -22,51 +29,12 @@ int pathIndex(char *file, char parent, char *path)
             P = file[P * 16];
             pos += 3;
         }
-        else if (path[pos] == '.' && path[pos + 1] == '/')
+        else if (strbcmp(path + pos, 2, "./"))
         {
             pos += 2;
         }
-        else if (path[pos] == '/')
-        {
-            // if (readingState == 0)
-            // {
-            //     return -1;
-            // }
-            // pos++;
-            // readingState = 0;
-
-            if (path[pos + 1] == '/')
-            {
-                return -1;
-            }
-            else
-            {
-                pos++;
-            }
-        }
         else
         {
-            // int i;
-            // for (i = 0; i < 64; i++)
-            // {
-            //     if (P != file[i * 16] || file[i * 16 + 2] == 0)
-            //     {
-            //         continue;
-            //     }
-            //     else
-            //     {
-            //         if (strswith(path[pos], file[i * 16 + 2]))
-            //         {
-            //             pos += strlen(file[i * 16 + 2]);
-            //             readingState = 1;
-            //             P = i;
-            //             break;
-            //         }
-            //     }
-            // }
-            // if (i == 64) {
-            //     return -1;
-            // }
             if (P != file[idx * 16])
             {
                 idx++;
@@ -75,10 +43,9 @@ int pathIndex(char *file, char parent, char *path)
             {
                 idx++;
             }
-            //TODO blm bkin strswith
-            else if (strswith(&(path[pos]), &(file[idx * 16 + 2])))
+            else if (strswith(path + pos, file + (idx * 16 + 2), 14))
             {
-                pos += strlen(&(file[idx * 16 + 2]));
+                pos += strlen(file + (idx * 16 + 2));
                 P = idx;
                 idx = 0x00;
             }
@@ -94,7 +61,6 @@ int pathIndex(char *file, char parent, char *path)
         }
     }
 
-    //if ((P != 0xFF))
     if (P != 0xFF && file[P * 16 + 1] != 0XFF)
     {
         return P;
@@ -110,11 +76,11 @@ void readFile(char *buffer, char *path, int *result, char parentIndex)
 {
     char file[1024];
     char sector[512];
+    int P, S, i;
 
     readSector(file, 0x101);
     readSector(file + 512, 0x102);
-
-    int P = pathIndex(file, parentIndex, path);
+    P = pathIndex(file, parentIndex, path);
 
     if (P == -1)
     {
@@ -123,15 +89,14 @@ void readFile(char *buffer, char *path, int *result, char parentIndex)
     }
     readSector(sector, 0x103);
 
-    int S = file[P * 16 + 1];
-    int i;
+    S = file[P * 16 + 1];
     for (i = 0; i < 16; i++)
     {
         if (sector[S * 16 + i] == 0x00)
         {
             break;
         }
-        readSector(&(buffer[i * 512]), sector[S * 16 + i]);
+        readSector(buffer + (i * 512), sector[S * 16 + i]);
     }
     *result = 1;
 }
@@ -139,61 +104,73 @@ void readFile(char *buffer, char *path, int *result, char parentIndex)
 void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
 {
 
-    char dir[1024];
+    char file[1024];
     char sector[512];
     char map[512];
 
-    readSector(dir, 0x101);
-    readSector(dir + 512, 0x102);
-    readSector(map, 0x103);
-    // Cek dir yang kosong
-    int dirRow = 0;
-    int emptyDirEntry = -1;
-    while (emptyDirEntry == -1 && dirRow < 64)
+    readSector(file, 0x101);
+    readSector(file + 512, 0x102);
+
+    if (file[16 * parentIndex + 1] != 0xFF && parentIndex != 0xFF)
     {
-        if (dir[dirRow * 16] == 0x00 && dir[dirRow * 16 + 1] == 0x00 && dir[dirRow * 16 + 2] == 0x0)
+        *sectors = -4;
+        return;
+    }
+
+    char *pathTemp;
+    int dirRow, emptyDirEntry, sectorsRow;
+    int sectorWritten, emptyMapPos, emptySectorEntry;
+    int emptySector, bufferSize;
+    int sectorNeeded, tempIndex;
+
+    readSector(map, 0x103);
+    // Cek file yang kosong
+    dirRow = 0;
+    emptyDirEntry = -1;
+
+    while (emptyDirEntry == -1 && dirRow <= 0x3f)
+    {
+        if (strbcmp(file + dirRow * 16, 16, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"))
         {
             emptyDirEntry = dirRow;
         }
         dirRow++;
     }
-    // Entry di files udah full semua
+    // Entry di files udah full semua / Entry di sectors udh full semua
     if (emptyDirEntry == -1)
     {
         *sectors = -2;
+        return;
     }
-    // Cek entri di sectors
-    int sectorsRow = 0;
-    int emptySectorEntry = -1;
+    emptySector = availableSector(sector);
 
-    while (emptySectorEntry == -1 && sectorsRow < 32)
+    bufferSize = strlen(buffer);
+    sectorNeeded = div(bufferSize, 512);
+    if (mod(bufferSize, 512) != 0)
     {
-        if (sector[sectorsRow * 16] == 0)
+        sectorNeeded += 1;
+    }
+    if (emptySector == 0 || sectorNeeded > emptySector)
+    {
+        *sectors = -3;
+        return;
+    }
+    strsntz(path, 14);
+    // Cek entri di sectors
+    sectorsRow = 0;
+    emptySectorEntry = -1;
+    while (emptySectorEntry == -1 && sectorsRow <= 0x1f)
+    {
+        if (sector[sectorsRow * 16] == 0x00)
         {
             emptySectorEntry = sectorsRow;
         }
     }
     // Cek sektor yang kosong dengan cek map
-    int mapPos = 0;
-    int emptySector = 0;
-    for (mapPos = 0; mapPos < 512; mapPos++)
+    for (dirRow = 0; dirRow < 64; dirRow++)
     {
-        if (map[mapPos] == 0x00)
-        {
-            emptySector++;
-        }
-    }
-
-    // Entry di sectors udh full semua
-    if (emptySectorEntry == -1)
-    {
-        *sectors = -2;
-        return;
-    }
-    // Todo : Cek apakah di directory yang sama terdapat nama file yang sama!!
-    for (dirRow = 0; dirRow < 64; dirRow ++)
-    {
-        if (dir[dirRow * 16] == parentIndex && strcmp(path, dir + (dirRow * 16 + 2)))
+        if (file[dirRow * 16] == parentIndex &&
+            strcmp(path, file + (dirRow * 16 + 2)))
         {
             // Udah ada di file yang sama
             *sector = -1;
@@ -201,46 +178,27 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
         }
     }
 
-
-    int bufferSize = strlen(buffer);
-    int sectorNeeded = div(bufferSize, 512);
-    if (mod(bufferSize, 512) != 0)
-    {
-        sectorNeeded += 1;
-    }
-    // Sektor di map udah ga cukup
-    if (sectorNeeded > emptySector)
-    {
-        *sectors = -3;
-        return;
-    }
     // Edit files
-    dir[emptyDirEntry * 16] = parentIndex;
-    dir[emptyDirEntry * 16 + 1] = emptySectorEntry;
-    char *pathTemp = path;
-    int tempIndex = 0;
+    file[emptyDirEntry * 16] = parentIndex;
+    file[emptyDirEntry * 16 + 1] = emptySectorEntry;
+    pathTemp = path;
+    tempIndex = 0;
+
+    //Make sure the file/folder name is 13 characters long + 1 null character
+
     while (*pathTemp != 0x00)
     {
-        dir[emptyDirEntry * 16 + 2 + tempIndex] = *pathTemp;
+        file[emptyDirEntry * 16 + 2 + tempIndex] = *pathTemp;
         pathTemp++;
         tempIndex++;
     }
-
     // Edit Sectors dan Map sekaligus writeSector
-    int sectorWritten = 0;
+    sectorWritten = 0;
     while (sectorWritten < sectorNeeded)
     {
         // Get first index in map yang kosong
-        int emptyMapPos = -1;
-        mapPos = 0;
-        while (emptyMapPos < 0)
-        {
-            if (map[mapPos] != 0x00)
-            {
-                emptyMapPos = mapPos;
-            }
-            mapPos++;
-        }
+
+        emptyMapPos = getNextSector(map);
         map[emptyMapPos] = 0xFF;
         writeSector(buffer + sectorWritten * 512, emptyMapPos);
         sector[emptySectorEntry * 16 + sectorWritten] = emptyMapPos;
@@ -248,7 +206,7 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
     }
 
     writeSector(map, 0x100);
-    writeSector(dir, 0x101);
-    writeSector(dir + 512, 0x102);
+    writeSector(file, 0x101);
+    writeSector(file + 512, 0x102);
     writeSector(sector, 0x103);
 }

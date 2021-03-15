@@ -5,22 +5,29 @@ void handleInterrupt21(int AX, int BX, int CX, int DX);
 void printString(char *string);
 void readString(char *string);
 void clear(char *buffer, int length);
+void strsntz(char *buffer, int max);
 int strcmp(char *first, char *second);
 int strlen(char *string);
 char strswith(char *first, char *second, int length);
+int strbcmp(char *buffer, int length, char *string);
 
 // Math
 int mod(int a, int b);
 int div(int a, int b);
 
 // Sector and File
+int pathIndex(char *file, char parent, char *path);
 void readSector(char *buffer, int sector);
 void writeSector(char *buffer, int sector);
+int availableSector(char *buffer);
+int getNextSector(char *buffer);
 void readFile(char *buffer, char *path, int *result, char parentIndex);
 void writeFile(char *buffer, char *path, int *sectors, char parentIndex);
 
 void bootLogo();
 void bootImage();
+
+void executeProgram(char *filename, int segment, int *success, char parentIndex);
 
 int main()
 {
@@ -71,6 +78,10 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
     case 0x04:
         readFile(BX, CX, DX, AH);
         break;
+    case 0x05:
+        writeFile(BX, CX, DX, AH);
+    case 0x06:
+        executeProgram(BX, CX, DX, AH);
     default:
         printString("Invalid interrupt");
     }
@@ -115,6 +126,28 @@ void readString(char *string)
     printString("\n\r");
     string[length] = 0;
     return;
+}
+
+void executeProgram(char *filename, int segment, int *success, char parentIndex)
+{
+    char buffer[512 * 16];
+    int i;
+
+    clear(buffer, 512 * 16);
+
+    readFile(buffer, filename, success, parentIndex);
+
+    if (*success == -1)
+    {
+        return;
+    }
+
+    for (i = 0; i < 512 * 16; i++)
+    {
+        putInMemory(segment, i, buffer[i]);
+    }
+
+    launchProgramEXE(segment);
 }
 
 void bootLogo()
