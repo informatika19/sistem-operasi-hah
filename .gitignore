@@ -3,3 +3,4 @@ bin
 system.img
 default-map.img
 *.out
+shell

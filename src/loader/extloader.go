@@ -47,7 +47,7 @@ func FindEmpty(source []byte, max int) (byte, error) {
 }
 
 func main() {
-	img, _ := os.OpenFile("../../system.img", os.O_RDWR, 0)
+	img, _ := os.OpenFile("system.img", os.O_RDWR, 0)
 	defer img.Close()
 
 	if len(os.Args) < 2 {
