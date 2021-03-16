@@ -31,17 +31,23 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
 
 int main()
 {
-    int flag;
+    int flag = 1;
+    char buffer[2048];
     makeInterrupt21();
-    bootLogo();
-    interrupt(0x10, 0x0012, 0, 0, 0);
+    // interrupt(0x10, 0x0012, 0, 0, 0);
 
-    bootImage();
-    interrupt(0x16, 0, 0, 0, 0);
-    interrupt(0x10, 0x0003, 0, 0, 0);
+    // bootImage();
+    // interrupt(0x16, 0, 0, 0, 0);
+    // interrupt(0x10, 0x0003, 0, 0, 0);
     bootLogo();
-
-    executeProgram("shell", 0x2000, &flag, 0xFF);
+    printString("\n");
+    // readFile(buffer, "test.txt", &flag, 0xFF);
+    // printString(buffer);
+    // readString(buffer);
+    // while (1) {}
+    executeProgram("test2.txt", 0x2000, &flag, 0xFF);
+    executeProgram("test.txt", 0x2000, &flag, 0xFF);
+    while (1){}
 }
 
 void clear(char *buffer, int length)
@@ -145,11 +151,13 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
     int i;
 
     clear(buffer, 8192);
-
+    printString("Getting file\r\n");
+    
     readFile(buffer, filename, success, parentIndex);
-
+    printString(buffer);
     if (*success == -1)
     {
+        printString("No such file \r\n");
         return;
     }
 
@@ -158,8 +166,9 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
     {
         putInMemory(segment, i, buffer[i]);
     }
+    printString("Finish put in memory\r\n");
+    //launchProgramX(segment);
 
-    launchProgramExe(segment);
 }
 
 void bootLogo()

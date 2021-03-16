@@ -212,3 +212,8 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
     writeSector(file + 512, 0x102);
     writeSector(sector, 0x103);
 }
+
+void printInteger (int a)
+{
+    while ()
+}

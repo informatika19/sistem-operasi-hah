@@ -25,7 +25,7 @@ int main()
     int historyPointer;
     int historyCount = 0;
     int arrowPressed = 0;
-    historyPointer = -1; 
+    historyPointer = -1;
     
     clear(commandHistory, 256 * 4);
     while (1)
