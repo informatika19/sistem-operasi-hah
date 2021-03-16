@@ -16,10 +16,18 @@ func IsRowEmpty(data []byte, offset int) bool {
 	return true
 }
 
-func MoveTo(source, target []byte, size, offset int) {
+func MoveBack(target, source []byte, size, offset int) {
 	j := 0
 	for i := offset; i < offset+size; i++ {
-		target[j] = source[i]
+		target[i] = source[j]
+		j++
+	}
+}
+
+func MoveTo(target, source []byte, size, offset int) {
+	j := 0
+	for i := offset; i < offset+size; i++ {
+		source[j] = target[i]
 		j++
 	}
 }
@@ -39,11 +47,11 @@ func FindEmpty(source []byte, max int) (byte, error) {
 }
 
 func main() {
-	img, _ := os.Open("../../system.img")
+	img, _ := os.OpenFile("../../system.img", os.O_RDWR, 0)
 	defer img.Close()
 
 	if len(os.Args) < 2 {
-		fmt.Printf("Usage: %s <sourceFile>", os.Args[0])
+		fmt.Printf("Usage: %s <sourceFile>\n", os.Args[0])
 		return
 	}
 
@@ -134,10 +142,15 @@ func main() {
 		}
 		data[int(sectorIndex)*512+i] = partialData
 	}
-	MoveTo(mapData, data, 512, 0)
-	MoveTo(fileData, data, 1024, 0)
-	MoveTo(sectorData, data, 512, 0)
-	fmt.Println(mapData)
+	MoveBack(data, mapData, 512, mapDataLocation)
+	MoveBack(data, fileData, 1024, fileDataLocation)
+	MoveBack(data, sectorData, 512, sectorDataLocation)
+	_, werr := img.WriteAt(data, 0)
+	if werr != nil {
+		fmt.Println(werr)
+		return
+	}
+	fmt.Println("Done!")
 }
 
 /*
