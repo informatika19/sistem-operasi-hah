@@ -89,8 +89,8 @@ func main() {
 		return
 	}
 
-	fileData[emptyFileRow] = 0xFF
-	fileData[emptyFileRow+1] = byte(parentIndexInteger)
+	fileData[emptyFileRow+1] = 0xFF
+	fileData[emptyFileRow] = byte(parentIndexInteger)
 
 	MoveBack(data, mapData, 512, mapDataLocation)
 	MoveBack(data, fileData, 1024, fileDataLocation)

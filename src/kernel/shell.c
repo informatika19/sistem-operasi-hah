@@ -209,7 +209,7 @@ void printCurrentDirectory(char currentDirectory)
             }
             if (i > 0)
             {
-                stringToShow[current] = "/";
+                stringToShow[current] = '/';
                 current++;
             }
             i--;
