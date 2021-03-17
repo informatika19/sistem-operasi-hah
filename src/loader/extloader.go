@@ -131,7 +131,7 @@ func main() {
 	countSectorIdx := 0
 	for i, partialData := range sourceData {
 		if i%512 == 0 {
-			sectorIndex, err2 = FindEmpty(mapData, 256)
+			sectorIndex, err2 = FindEmpty(mapData, 512)
 			mapData[int(sectorIndex)] = 0xFF
 			if err2 != nil {
 				fmt.Println("There is not enough space for the file specified. (System Image Is Full)")
