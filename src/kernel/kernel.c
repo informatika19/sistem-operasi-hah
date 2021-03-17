@@ -8,6 +8,7 @@ void clear(char *buffer, int length);
 void strsntz(char *buffer, int max);
 int strcmp(char *first, char *second);
 int strlen(char *string);
+void strcpy (char * src, char * dst);
 char strswith(char *first, char *second, int length);
 int strbcmp(char *buffer, int length, char *string);
 char convertIntegerToString (int a);
@@ -23,13 +24,17 @@ void readSector(char *buffer, int sector);
 void writeSector(char *buffer, int sector);
 int availableSector(char *buffer);
 int getNextSector(char *buffer);
+int pathIndex(char *file, char parent, char *path);
 void readFile(char *buffer, char *path, int *result, char parentIndex);
 void writeFile(char *buffer, char *path, int *sectors, char parentIndex);
+
+// Shell
+void runShell();
 
 void bootLogo();
 void bootImage();
 
-void executeProgram(char *filename, int segment, int *success, char parentIndex);
+
 
 int main()
 {
@@ -44,17 +49,17 @@ int main()
     bootLogo();
     printString("\n");
 
-    printString("\r\n");
-    printString("Hello world\r\n");
-    readFile(buffer, "test", &flag, 0xFF);
-    printString(buffer);
-    printString("\r\n");
+    // printString("\r\n");
+    // printString("Hello world\r\n");
+    // readFile(buffer, "test", &flag, 0xFF);
+    // printString(buffer);
+    // printString("\r\n");
+    runShell();
 
     // readString(buffer);
     // while (1) {}
     // readFile(buffer, "test", &flag, 0xFF);
     // printString(buffer);
-    executeProgram("shell", 0x2000, &flag, 0xFF);
     // executeProgram("test.txt", 0x2000, &flag, 0xFF);
     while (1){}
 }
@@ -93,8 +98,6 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
         break;
     case 0x05:
         writeFile(BX, CX, DX, AH);
-    case 0x06:
-        executeProgram(BX, CX, DX, AH);
     default:
         printString("Invalid interrupt");
     }
@@ -160,32 +163,6 @@ void readString(char *string)
     printString("\n\r");
     string[length] = 0;
     return;
-}
-
-void executeProgram(char *filename, int segment, int *success, char parentIndex)
-{
-    char buffer[8192];
-    int i;
-
-    clear(buffer, 8192);
-    // printString("Getting file\r\n");
-    
-    readFile(buffer, filename, success, parentIndex);
-    // printString(buffer);
-    if (*success == -1)
-    {
-        printString("No such file \r\n");
-        return;
-    }
-
-    //8192 = 512 *16
-    for (i = 0; i < 8192; i++)
-    {
-        putInMemory(segment, i, buffer[i]);
-    }
-    // printString("Finish put in memory\r\n");
-    launchProgramX(segment);
-
 }
 
 void bootLogo()
