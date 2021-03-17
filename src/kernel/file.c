@@ -45,10 +45,6 @@ int pathIndex(char *file, char parent, char *path)
             }
             else if (strswith(path + pos, file + (idx * 16 + 2), 14))
             {
-                // printInteger(strlen(path + pos));
-                // printString("\r\n");
-                // printInteger(strlen(file + (idx * 16 + 2)));
-                // printString("\r\n");
                 
                 pos += strlen(file + (idx * 16 + 2));
                 P = idx;
@@ -79,6 +75,84 @@ int pathIndex(char *file, char parent, char *path)
     }
 }
 
+int folderIndex (char *file, char parent, char *path) 
+{
+    char P = parent;
+    char pos = 0x00;
+    char idx = 0x00;
+
+    if (path[0] == '/')
+    {
+        pos++;
+        P = 0xFF;
+    }
+
+    while (path[pos] != 0x00)
+    {
+        if (strbcmp(path + pos, 1, "/"))
+        {
+            if (strbcmp(path + pos, 2, "//"))
+            {
+                return -1;
+            }
+            pos++;
+        }
+        else if (strbcmp(path + pos, 3, "../"))
+        {
+            // printString("Masuk sini \r\n");
+            if (P == 0xFF)
+            {
+                return -1;
+            }
+            P = file[P * 16];
+            pos += 3;
+        }
+        else if (strbcmp(path + pos, 2, "./"))
+        {
+            pos += 2;
+        }
+        else
+        {
+            if (P != file[idx * 16])
+            {
+                idx++;
+            }
+            else if (file[idx * 16 + 2] == 0)
+            {
+                idx++;
+            }
+            else if (strswith(path + pos, file + (idx * 16 + 2), 14))
+            {
+                
+                pos += strlen(file + (idx * 16 + 2));
+                P = idx;
+                // return idx;
+
+                idx = 0x00;
+            }
+            else
+            {
+                idx++;
+            }
+        }
+
+        if (idx > 0x3f)
+        {
+            return -1;
+        }
+    }
+
+    if (file[P * 16 + 1] == 0XFF)
+    {
+        return P;
+    }
+    else
+    {
+        // File not found atau file tersebut adalah folder
+        return -1;
+    }
+}
+
 void readFile(char *buffer, char *path, int *result, char parentIndex)
 {
     char file[1024];
@@ -89,8 +163,6 @@ void readFile(char *buffer, char *path, int *result, char parentIndex)
     readSector(file + 512, 0x102);
     P = pathIndex(file, parentIndex, path);
     // P = 1;
-    // printInteger(P);
-    // printString("\r\n");
     if (P == -1)
     {
         *result = -1;
@@ -223,3 +295,39 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
     writeSector(sector, 0x103);
 }
 
+void createSymbolicLink (char currentDirectory, char * first, char * second)
+{
+    int indexPath;
+    int i;
+    int idx;
+    char file[1024];
+    char * pointer;
+
+    readSector(file, 0x101);
+    readSector(file + 512, 0x102);
+
+    indexPath = pathIndex(file, currentDirectory, first);
+    for (i = 0; i < 64; i++)
+    {
+        if (file[16 * i] == 0x00 && file[16 * i + 1] == 0x00 && file[16 * i + 2] == 0x00)
+        {
+            file[16 * i] = file[indexPath * 16];
+            file[16 * i + 1] = file[indexPath * 16 + 1];
+            break;
+        }
+    }
+
+    pointer = second;
+    idx = 0;
+    while (*pointer != 0x0)
+    {
+        file[i * 16 + 2 + idx] = *pointer;
+        pointer ++;
+        idx ++;
+    }
+
+    writeSector(file, 0x101);
+    writeSector(file + 512, 0x102);
+
+
+}

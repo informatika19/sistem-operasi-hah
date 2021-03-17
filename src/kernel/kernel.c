@@ -12,7 +12,6 @@ void strcpy (char * src, char * dst);
 char strswith(char *first, char *second, int length);
 int strbcmp(char *buffer, int length, char *string);
 char convertIntegerToString (int a);
-void printInteger (int n);
 
 // Math
 int mod(int a, int b);
@@ -25,6 +24,7 @@ void writeSector(char *buffer, int sector);
 int availableSector(char *buffer);
 int getNextSector(char *buffer);
 int pathIndex(char *file, char parent, char *path);
+int folderIndex (char *file, char parent, char *path);
 void readFile(char *buffer, char *path, int *result, char parentIndex);
 void writeFile(char *buffer, char *path, int *sectors, char parentIndex);
 

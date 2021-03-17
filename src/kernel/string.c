@@ -68,17 +68,20 @@ int strbcmp(char *buffer, int length, char *string)
 
     char i;
     char first[8192];
+    clear(first, 8192);
     i = 0x00;
-    // printString("Comparing : \r\n");
-    // printString(buffer);
-    // printString("\r\n");
-    // printString(string);
-    // printString("\r\n");
+    
+    
     for (i = 0; i < length; i++)
     {
         first[i] = buffer[i];
     }
-    first[++i] = 0x00;
+    // first[++i] = 0x00;
+    // printString("Comparing : \r\n");
+    // printInteger(strlen(first));
+    // printString("\r\n");
+    // printInteger(strlen(string));
+    // printString("\r\n");
     return strcmp(first, string);
 }
 
@@ -117,3 +120,4 @@ void strcpy (char * src, char * dst)
         index ++;
     }
 }
+

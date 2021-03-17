@@ -6,6 +6,11 @@
 #bcc -ansi -c -o ./bin/shell/shell.o ./src/shell/shell.c
 #ld86 -o ./shell -d ./bin/shell/shell.o ./bin/lib.o
 
-cd src/loader
-go build -o ../../extloader.out
-cd ../..
+cd src/loader/extloader
+go build -o ../../../extloader.out
+cd ../../../
+
+
+cd src/loader/folderloader
+go build -o ../../../folderloader.out
+cd ../../../

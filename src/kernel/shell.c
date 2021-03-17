@@ -1,18 +1,25 @@
 void printCurrentDirectory(char currentDirectory);
 void splitString(char *buffer, char *first, char *second, char delimiter);
+void splitStringThree(char *buffer, char *first, char *second, char * third, char delimiter);
 void printHistory (char * commandHistory, int historyCount);
+void createSymbolicLink (char currentDirectory, char * first, char * second);
+
 void runShell ()
 {
     char command[256];
     char program[256];
     char parameter[256];
+    char secondParameter[256];
     char file[1024];
+    char sector[512];
+    char map[512];
     char fileBuffer[8192];
     char commandHistory[1024];
     char currentDirectory = 0xFF;
 
     int i;
     int indexToMove;
+    int indexPath;
     int flag;
     int historyPointer;
     int historyCount = 0;
@@ -63,7 +70,10 @@ void runShell ()
                 splitString(command, program, parameter, ' ');
                 readSector(file, 0x101);
                 readSector(file + 512, 0x102);
-                indexToMove = pathIndex(file, currentDirectory, parameter);
+                // printString(&currentDirectory);
+                // printString("\r\n");
+
+                indexToMove = folderIndex(file, currentDirectory, parameter);
                 if (indexToMove == -1)
                 {
                     printString("No such folder\r\n");
@@ -120,6 +130,13 @@ void runShell ()
                     printString(fileBuffer);
                     printString("\r\n");
                 }
+            }
+            else if (strbcmp(command, 2, "ln"))
+            {
+                printString("Calling ln\r\n");
+                splitStringThree(command, program, parameter, secondParameter, ' ');
+                createSymbolicLink(currentDirectory, parameter, secondParameter);
+
             }
             else
             {
@@ -245,4 +262,54 @@ void printHistory (char * commandHistory, int historyCount)
         printString(commandHistory + (i * 256));
         printString("\r\n");
     }
+}
+
+void splitStringThree(char *buffer, char *first, char *second, char * third, char delimiter)
+{
+    int splitted = 0;
+    char *pointer = buffer;
+    int firstLength;
+    int secondLength;
+    int thirdLength;
+
+    firstLength = 0;
+    secondLength = 0;
+    thirdLength = 0;
+    while (*pointer != 0x00)
+    {
+        if (*pointer == delimiter)
+        {
+            if (splitted == 0)
+            {
+                splitted = 1;
+            } else if (splitted == 1)
+            {
+                splitted = 2;
+            }
+        }
+        else
+        {
+            if (splitted == 1)
+            {
+                second[secondLength] = *pointer;
+                secondLength++;
+            }
+            else if (splitted == 0)
+            {
+                first[firstLength] = *pointer;
+                firstLength++;
+            }
+            else
+            {
+                third[thirdLength] = *pointer;
+                thirdLength ++;
+            }
+        }
+
+        pointer++;
+    }
+    second[secondLength] = 0x0;
+    first[firstLength] = 0x0;
+    third[thirdLength] = 0x0;
+
 }
