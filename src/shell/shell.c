@@ -8,6 +8,9 @@ void splitString(char *buffer, char *first, char *second, char delimiter);
 void strcpy (char * src, char * dst);
 void clear(char *buffer, int length);
 int strlen(char *string);
+void printInteger(int n);
+int mod(int a, int b);
+int div(int a, int b);
 
 int main()
 {
@@ -15,7 +18,7 @@ int main()
     char program[256];
     char parameter[256];
     char file[1024];
-    char fileBuffer[512];
+    char fileBuffer[8192];
     char commandHistory[4][256];
     char currentDirectory = 0xFF;
 
@@ -28,10 +31,14 @@ int main()
     historyPointer = -1;
     
     clear(commandHistory, 256 * 4);
+    
+    
     while (1)
     {
+        clear(command, 256);
         if (arrowPressed == 0)
         {
+            printString("\r\n");
             printCurrentDirectory(currentDirectory);
         }
         interrupt(0x21, 0x01, command, 0, 0);
@@ -61,9 +68,10 @@ int main()
         }
         else 
         {
-            if (strbcmp(command, 3, "cd"))
+            if (strbcmp(command, 2, "cd"))
             {
                 splitString(command, program, parameter, ' ');
+                
                 indexToMove = pathIndex(currentDirectory, parameter);
                 if (indexToMove == -1)
                 {
@@ -76,6 +84,7 @@ int main()
             }
             else if (strbcmp(command, 3, "ls"))
             {
+                printString("\r\n");
                 interrupt(0x21, 0x02, file, 0x101, 0);
                 interrupt(0x21, 0x02, file + 512, 0x102, 0);
                 for (i = 0; i < 64; i++)
@@ -88,10 +97,26 @@ int main()
                 }
 
             }
-            else if (strbcmp(command, 4, "cat"))
+            else if (strbcmp(command, 3, "cat"))
             {
                 splitString(command, program, parameter, ' ');
+                clear(fileBuffer, 8192);
+                // printString(parameter);
+                // printString("\r\n");
+                // if (strcmp("test", parameter))
+                // {
+                //     printString("sama hehe\r\n");
+                // }
+                printString("\r\n");
+                printString(parameter);
+                printString("\r\n");
+
+                printInteger(strlen(parameter));
+                printString("\r\n");
                 interrupt(0x21, (currentDirectory << 8) + 0x04, fileBuffer, parameter, &flag);
+                printString("\r\n");
+                printInteger(flag);
+                printString("\r\n");
 
                 if (flag == -1)
                 {
@@ -99,8 +124,13 @@ int main()
                 }
                 else
                 {
+                    printString("\r\n");
                     printString(fileBuffer);
                 }
+            }
+            else
+            {
+                printString("Unknown command\r\n");
             }
             if (historyCount < 4)
             {
@@ -340,6 +370,8 @@ void splitString(char *buffer, char *first, char *second, char delimiter)
 
         pointer++;
     }
+    second[secondLength] = 0x0;
+    first[firstLength] = 0x0;
 }
 
 void strcpy (char * src, char * dst)
@@ -372,4 +404,94 @@ int strlen(char *string)
         ans += 1;
     }
     return ans;
+}
+
+void printInteger(int n) {
+	int tmp = n;
+    int i;
+    int length = 1;
+	char number[5];
+	char isNegative = 0;
+
+    // If n is 0...
+	if(n == 0) {
+        printString("0");
+        return;
+    }
+    
+    // If is negative...
+    if(tmp<0)
+    {
+    	isNegative = 1;
+    	tmp = -tmp;
+    }
+
+    // Check length of int
+    while(tmp>10)
+    {
+        tmp = div(tmp, 10);
+        ++length;
+    }
+
+    tmp = n;
+	if (isNegative) {
+		tmp = -tmp;
+	}
+
+	for(i=length-1;i>=0;i--)
+	{
+		number[i] = mod(tmp,10) + '0';
+		tmp = div(tmp, 10);
+	}
+    number[length] = 0;
+
+    if(isNegative) printString("-");
+    printString(number);
+}
+int mod(int a, int b)
+{
+    return (a - b * (a / b));
+}
+
+int div(int a, int b)
+{
+    int is_negative = 0;
+    if (a < 0 && b < 0)
+    {
+        a = a * (-1);
+        b = b * (-1);
+    }
+    else if ((a < 0) && (b > 0))
+    {
+        a = a * (-1);
+        is_negative = 1;
+    }
+    else if ((a > 0) && (b < 0))
+    {
+        b = b * (-1);
+        is_negative = 1;
+    }
+
+    if (!is_negative)
+    {
+        if (b > a)
+        {
+            return 0;
+        }
+        else
+        {
+            return (1 + div(a - b, b));
+        }
+    }
+    else if (is_negative)
+    {
+        if (b > a)
+        {
+            return (-1);
+        }
+        else
+        {
+            return ((-1) * (1 + div(a - b, b)));
+        }
+    }
 }

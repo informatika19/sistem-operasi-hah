@@ -10,6 +10,8 @@ int strcmp(char *first, char *second);
 int strlen(char *string);
 char strswith(char *first, char *second, int length);
 int strbcmp(char *buffer, int length, char *string);
+char convertIntegerToString (int a);
+void printInteger (int n);
 
 // Math
 int mod(int a, int b);
@@ -41,12 +43,21 @@ int main()
     // interrupt(0x10, 0x0003, 0, 0, 0);
     bootLogo();
     printString("\n");
-    // readFile(buffer, "test.txt", &flag, 0xFF);
-    // printString(buffer);
+
+    printString("\r\n");
+    printString("Hello world\r\n");
+    readFile(buffer, "test", &flag, 0xFF);
+    printString(buffer);
+    printString("\r\n");
+    printInteger(flag);
+    printString("\r\n");
+
     // readString(buffer);
     // while (1) {}
-    executeProgram("test2.txt", 0x2000, &flag, 0xFF);
-    executeProgram("test.txt", 0x2000, &flag, 0xFF);
+    // readFile(buffer, "test", &flag, 0xFF);
+    // printString(buffer);
+    executeProgram("shell", 0x2000, &flag, 0xFF);
+    // executeProgram("test.txt", 0x2000, &flag, 0xFF);
     while (1){}
 }
 
@@ -107,34 +118,42 @@ void readString(char *string)
     int input = interrupt(0x16, 0, 0, 0, 0);
     char AH = (char)(input >> 8);
     char AL = (char)(input);
+    char a[2];
     int length = 0;
+    
     while (!(AL == '\r'))
     {
-        if (AH == 0X48 || AH == 0x50)
-        {
-            length --;
-            while (length >= 0)
-            {
-                string[length] = 0x00;
-                length -= 1;
-                printString("\b \b");
-            }
-            string[0] = 0x0;
-            string[1] = AH;
-            return;
-        }
+        // printString(a);
+        // if (AH == 0X48 || AH == 0x50)
+        // {
+        //     length --;
+        //     while (length >= 0)
+        //     {
+        //         string[length] = 0x00;
+        //         length -= 1;
+        //         printString("\b \b");
+        //     }
+        //     string[0] = 0x0;
+        //     string[1] = AH;
+        //     return;
+        // }
         if (AL != 0x0)
         {
+
             if (AL == '\b' && length > 0)
             {
-                printString("\b \b");
-                string[length--] = 0x00;
+                interrupt(0x10, 0xe00 + '\b', 0xF, 0, 0);
+			    interrupt(0x10, 0xe00 + ' ', 0xF, 0, 0);
+			    interrupt(0x10, 0xe00 + '\b', 0xF, 0, 0);
+                
+                string[--length] = 0x00;
             }
             else
             {
                 printString(&AL);
                 string[length++] = AL;
             }
+
         }
         input = interrupt(0x16, 0, 0, 0, 0);
         AH = (char)(input >> 8);
@@ -151,10 +170,10 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
     int i;
 
     clear(buffer, 8192);
-    printString("Getting file\r\n");
+    // printString("Getting file\r\n");
     
     readFile(buffer, filename, success, parentIndex);
-    printString(buffer);
+    // printString(buffer);
     if (*success == -1)
     {
         printString("No such file \r\n");
@@ -166,8 +185,8 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
     {
         putInMemory(segment, i, buffer[i]);
     }
-    printString("Finish put in memory\r\n");
-    //launchProgramX(segment);
+    // printString("Finish put in memory\r\n");
+    launchProgramX(segment);
 
 }
 

@@ -35,18 +35,28 @@ int strcmp(char *first, char *second)
 char strswith(char *first, char *second, int length)
 {
     int i;
-
+    
+    // printString("Comparing : \r\n");
+    // printString(first);
+    // printString(" ");
+    // printString(second);
+    // printString("\r\n");
     for (i = 0; i < length; i++)
     {
-        if (second[i] == 0)
+        if (second[i] == 0x0)
         {
+            // printString("RETURNING TRUE\r\n");
             return 1;
         }
-        if (first[i] != second[i])
+        else if (first[i] != second[i])
         {
+            printString(".");
+            printString("\b \b");
+
             return 0;
         }
     }
+    // printString("RETURNING TRUE\r\n");
 
     return 1;
 }

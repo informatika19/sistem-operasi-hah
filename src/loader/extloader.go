@@ -1,4 +1,4 @@
-hepackage main
+package main
 
 import (
 	"errors"

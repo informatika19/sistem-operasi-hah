@@ -1,0 +1,1 @@
+bochs -f if2230.config <<< "c" > /dev/null 2>&1

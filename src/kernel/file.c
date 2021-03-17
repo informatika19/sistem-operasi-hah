@@ -45,8 +45,15 @@ int pathIndex(char *file, char parent, char *path)
             }
             else if (strswith(path + pos, file + (idx * 16 + 2), 14))
             {
+                // printInteger(strlen(path + pos));
+                // printString("\r\n");
+                // printInteger(strlen(file + (idx * 16 + 2)));
+                // printString("\r\n");
+                
                 pos += strlen(file + (idx * 16 + 2));
                 P = idx;
+                // return idx;
+
                 idx = 0x00;
             }
             else
@@ -77,11 +84,13 @@ void readFile(char *buffer, char *path, int *result, char parentIndex)
     char file[1024];
     char sector[512];
     int P, S, i;
-
+    // printString("Reading file\r\n");
     readSector(file, 0x101);
     readSector(file + 512, 0x102);
     P = pathIndex(file, parentIndex, path);
-
+    // P = 1;
+    // printInteger(P);
+    // printString("\r\n");
     if (P == -1)
     {
         *result = -1;
@@ -99,6 +108,7 @@ void readFile(char *buffer, char *path, int *result, char parentIndex)
         readSector(buffer + (i * 512), sector[S * 16 + i]);
     }
     *result = 1;
+    // *result = 1;
 }
 
 void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
@@ -213,7 +223,3 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
     writeSector(sector, 0x103);
 }
 
-void printInteger (int a)
-{
-    while ()
-}

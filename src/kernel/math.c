@@ -41,7 +41,7 @@ int div(int a, int b)
         }
         else
         {
-            return ((-1) * (2 + div(a - b, b)));
+            return ((-1) * (1 + div(a - b, b)));
         }
     }
 }
