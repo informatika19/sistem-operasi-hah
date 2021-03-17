@@ -1,3 +1,6 @@
 bin
 *.txt
 system.img
+*.out
+shell
+!/src/shell
