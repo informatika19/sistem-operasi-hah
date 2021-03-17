@@ -142,7 +142,7 @@ int folderIndex (char *file, char parent, char *path)
         }
     }
 
-    if (file[P * 16 + 1] == 0XFF)
+    if (file[P * 16 + 1] == 0XFF || P == 0XFF)
     {
         return P;
     }
