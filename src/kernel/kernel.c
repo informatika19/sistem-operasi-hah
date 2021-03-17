@@ -49,8 +49,6 @@ int main()
     readFile(buffer, "test", &flag, 0xFF);
     printString(buffer);
     printString("\r\n");
-    printInteger(flag);
-    printString("\r\n");
 
     // readString(buffer);
     // while (1) {}
