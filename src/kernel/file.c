@@ -180,7 +180,6 @@ void readFile(char *buffer, char *path, int *result, char parentIndex)
         readSector(buffer + (i * 512), sector[S * 16 + i]);
     }
     *result = 1;
-    // *result = 1;
 }
 
 void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
@@ -261,7 +260,7 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
     }
 
     // Edit files
-    clear(file+emptyDirEntry*16, 16);
+    clear(file + emptyDirEntry * 16, 16);
     file[emptyDirEntry * 16] = parentIndex;
     file[emptyDirEntry * 16 + 1] = emptySectorEntry;
     pathTemp = path;
