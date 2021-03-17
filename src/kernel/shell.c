@@ -1,14 +1,14 @@
 void printCurrentDirectory(char currentDirectory);
 void splitString(char *buffer, char *first, char *second, char delimiter);
-void printHistory (char * commandHistory, int historyCount);
-void runShell ()
+void printHistory(char *commandHistory, int historyCount);
+void runShell()
 {
     char command[256];
     char program[256];
     char parameter[256];
     char file[1024];
-    char fileBuffer[8192];
     char commandHistory[1024];
+    char fileBuffer[8192];
     char currentDirectory = 0xFF;
 
     int i;
@@ -18,10 +18,9 @@ void runShell ()
     int historyCount = 0;
     int arrowPressed = 0;
     historyPointer = -1;
-    
+
     clear(commandHistory, 256 * 4);
-    
-    
+
     while (1)
     {
         clear(command, 256);
@@ -32,13 +31,15 @@ void runShell ()
         readString(command);
         printString("\r\n");
         // interrupt(0x21, 0x01, command, 0, 0);
-        if (command[0] == 0x0)
+        if (command[0] == 0x00)
         {
+            printString(command);
+            printString("\n");
             if (command[1] == 0x48) // Key up
             {
                 if (historyPointer < historyCount - 1) // Masih bisa up
                 {
-                    historyPointer ++;
+                    historyPointer++;
                     printString(commandHistory + historyPointer * 256);
                 }
             }
@@ -46,17 +47,16 @@ void runShell ()
             {
                 if (historyPointer >= 0) // Masih bisa down
                 {
-                    historyPointer --;
+                    historyPointer--;
                     if (historyPointer != -1)
                     {
                         printString(command + historyPointer * 256);
                     }
                 }
-                
             }
             arrowPressed = 1;
         }
-        else 
+        else
         {
             if (strbcmp(command, 2, "cd"))
             {
@@ -73,7 +73,7 @@ void runShell ()
                     currentDirectory = indexToMove;
                 }
             }
-            else if (strbcmp(command, 3, "ls"))
+            else if (strbcmp(command, 2, "ls"))
             {
                 // interrupt(0x21, 0x02, file, 0x101, 0);
                 // interrupt(0x21, 0x02, file + 512, 0x102, 0);
@@ -87,7 +87,6 @@ void runShell ()
                         printString("\r\n");
                     }
                 }
-
             }
             else if (strbcmp(command, 3, "cat"))
             {
@@ -121,17 +120,29 @@ void runShell ()
                     printString("\r\n");
                 }
             }
+            else if (strbcmp(command, 7, "history"))
+            {
+                if (historyCount > 0)
+                {
+                    printHistory(commandHistory, historyCount);
+                }
+                else
+                {
+                    printString("No command history\r\n");
+                }
+            }
             else
             {
                 printString("Unknown command\r\n");
             }
+
             if (historyCount < 4)
             {
-                historyCount ++;
+                historyCount++;
             }
             // if (historyCount == 4)
-            
-            for (i = historyCount; i >= 1;i--)
+
+            for (i = historyCount; i >= 1; i--)
             {
                 clear(commandHistory + i * 256, 256);
                 strcpy(commandHistory + (i - 1) * 256, commandHistory + 256 * i);
@@ -144,9 +155,7 @@ void runShell ()
             historyPointer = -1;
             arrowPressed = 0;
             // printHistory(commandHistory, historyCount);
-            
         }
-        
     }
 }
 
@@ -158,7 +167,7 @@ void printCurrentDirectory(char currentDirectory)
     int i;
     int fileNameIdx;
     int current;
-    
+
     printString("~/");
     current = 0;
     if (currentDirectory != 0xFF) // Sekarang di root
@@ -235,12 +244,12 @@ void splitString(char *buffer, char *first, char *second, char delimiter)
     first[firstLength] = 0x0;
 }
 
-void printHistory (char * commandHistory, int historyCount)
+void printHistory(char *commandHistory, int historyCount)
 {
     int i;
 
     printString("Printing history \r\n");
-    for (i = 0; i < historyCount;i++)
+    for (i = 0; i < historyCount; i++)
     {
         printString(commandHistory + (i * 256));
         printString("\r\n");

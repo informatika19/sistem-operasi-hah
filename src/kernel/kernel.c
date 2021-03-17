@@ -8,11 +8,9 @@ void clear(char *buffer, int length);
 void strsntz(char *buffer, int max);
 int strcmp(char *first, char *second);
 int strlen(char *string);
-void strcpy (char * src, char * dst);
+void strcpy(char *src, char *dst);
 char strswith(char *first, char *second, int length);
 int strbcmp(char *buffer, int length, char *string);
-char convertIntegerToString (int a);
-void printInteger (int n);
 
 // Math
 int mod(int a, int b);
@@ -33,8 +31,6 @@ void runShell();
 
 void bootLogo();
 void bootImage();
-
-
 
 int main()
 {
@@ -61,7 +57,9 @@ int main()
     // readFile(buffer, "test", &flag, 0xFF);
     // printString(buffer);
     // executeProgram("test.txt", 0x2000, &flag, 0xFF);
-    while (1){}
+    while (1)
+    {
+    }
 }
 
 void clear(char *buffer, int length)
@@ -118,35 +116,31 @@ void readString(char *string)
 {
     int input = interrupt(0x16, 0, 0, 0, 0);
     char AH = (char)(input >> 8);
-    char AL = (char)(input);
-    char a[2];
+    char AL = (char)(input & 0x00FF);
     int length = 0;
-    
+
     while (!(AL == '\r'))
     {
-        // printString(a);
-        // if (AH == 0X48 || AH == 0x50)
-        // {
-        //     length --;
-        //     while (length >= 0)
-        //     {
-        //         string[length] = 0x00;
-        //         length -= 1;
-        //         printString("\b \b");
-        //     }
-        //     string[0] = 0x0;
-        //     string[1] = AH;
-        //     return;
-        // }
+        if (AH == 0x48 && AH == 0x50)
+        {
+            while (length > 0)
+            {
+                printString("\b");
+                string[--length] = 0x00;
+            }
+            string[0] = 0x00;
+            string[1] = AH;
+            return;
+        }
         if (AL != 0x0)
         {
 
             if (AL == '\b' && length > 0)
             {
                 interrupt(0x10, 0xe00 + '\b', 0xF, 0, 0);
-			    interrupt(0x10, 0xe00 + ' ', 0xF, 0, 0);
-			    interrupt(0x10, 0xe00 + '\b', 0xF, 0, 0);
-                
+                interrupt(0x10, 0xe00 + ' ', 0xF, 0, 0);
+                interrupt(0x10, 0xe00 + '\b', 0xF, 0, 0);
+
                 string[--length] = 0x00;
             }
             else
@@ -154,7 +148,6 @@ void readString(char *string)
                 printString(&AL);
                 string[length++] = AL;
             }
-
         }
         input = interrupt(0x16, 0, 0, 0, 0);
         AH = (char)(input >> 8);

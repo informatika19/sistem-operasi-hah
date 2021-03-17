@@ -49,7 +49,7 @@ int pathIndex(char *file, char parent, char *path)
                 // printString("\r\n");
                 // printInteger(strlen(file + (idx * 16 + 2)));
                 // printString("\r\n");
-                
+
                 pos += strlen(file + (idx * 16 + 2));
                 P = idx;
                 // return idx;
@@ -108,7 +108,6 @@ void readFile(char *buffer, char *path, int *result, char parentIndex)
         readSector(buffer + (i * 512), sector[S * 16 + i]);
     }
     *result = 1;
-    // *result = 1;
 }
 
 void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
@@ -189,7 +188,7 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
     }
 
     // Edit files
-    clear(file+emptyDirEntry*16, 16);
+    clear(file + emptyDirEntry * 16, 16);
     file[emptyDirEntry * 16] = parentIndex;
     file[emptyDirEntry * 16 + 1] = emptySectorEntry;
     pathTemp = path;
@@ -222,4 +221,3 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
     writeSector(file + 512, 0x102);
     writeSector(sector, 0x103);
 }
-
