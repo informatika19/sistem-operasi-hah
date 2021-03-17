@@ -139,8 +139,9 @@ func main() {
 			}
 			sectorData[emptySectorRow*16+countSectorIdx] = sectorIndex
 			countSectorIdx++
+			fmt.Printf("#%d * 512 + %d -> %b\n", int(sectorIndex), i, partialData)
 		}
-		data[int(sectorIndex)*512+i] = partialData
+		data[int(sectorIndex)*512+(i%512)] = partialData
 	}
 	MoveBack(data, mapData, 512, mapDataLocation)
 	MoveBack(data, fileData, 1024, fileDataLocation)
@@ -152,19 +153,3 @@ func main() {
 	}
 	fmt.Println("Done!")
 }
-
-/*
-cadangan incase dibutuhkan
-	newfile, _ := os.Create("tesss.txt")
-	defer newfile.Close()
-
-	newfile.Write(a)
-
-	newfileread, _ := os.Open("tesss.txt")
-	defer newfileread.Close()
-
-	b := make([]byte, 30)
-	newfileread.Read(b)
-	fmt.Println(a)
-	fmt.Println(b)
-*/

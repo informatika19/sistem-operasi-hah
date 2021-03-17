@@ -15,4 +15,4 @@ ld86 -o ./shell -d ./bin/shell/shell.o ./bin/lib.o
 cd src/loader
 go build -o ../../extloader.out
 cd ../..
-./loadfile shell shell
+./extloader.out testge2.txt
