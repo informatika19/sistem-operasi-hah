@@ -97,6 +97,10 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
         break;
     case 0x05:
         writeFile(BX, CX, DX, AH);
+        break;
+    case 0x6:
+        executeProgram(BX, CX, DX, AH);
+        break;
     default:
         printString("Invalid interrupt");
     }
@@ -216,5 +220,24 @@ void bootImage()
             int js = j / 10;
             interrupt(0x10, 0x0C00 + map[is][js], 0, i, j);
         }
+    }
+}
+
+void executeProgram(char *filename, int segment, int *success, char parentIndex) {
+    // Buat buffer
+    int isSuccess;
+    char fileBuffer[512 * 16];
+    // Buka file dengan readFile
+    readFile(&fileBuffer, filename, &isSuccess, parentIndex);
+    // If success, salin dengan putInMemory
+    if (isSuccess) {
+        // launchProgram
+        int i = 0;
+        for (i = 0; i < 512*16; i++) {
+            putInMemory(segment, i, fileBuffer[i]);
+        }
+        launchProgram(segment);
+    } else {
+        interrupt(0x21, 0, "File not found!", 0,0);
     }
 }
