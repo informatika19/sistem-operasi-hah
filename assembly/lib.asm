@@ -5,6 +5,7 @@
 ;lib.asm contains assembly functions that you can use in the shell
 
 global _interrupt
+global _returnToSender
 
 ;int interrupt (int number, int AX, int BX, int CX, int DX)
 _interrupt:
@@ -25,5 +26,9 @@ _interrupt:
 intr:	int 0x00	;call the interrupt (00 will be changed above)
 
 	mov ah,0	;we only want AL returned
+	pop bp
+	ret
+_returnToSender:
+	mov sp,bp
 	pop bp
 	ret
