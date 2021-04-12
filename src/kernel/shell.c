@@ -1,10 +1,10 @@
 void printCurrentDirectory(char currentDirectory);
 void splitString(char *buffer, char *first, char *second, char delimiter);
-void splitStringThree(char *buffer, char *first, char *second, char * third, char delimiter);
-void printHistory (char * commandHistory, int historyCount);
-void createSymbolicLink (char currentDirectory, char * first, char * second);
+void splitStringThree(char *buffer, char *first, char *second, char *third, char delimiter);
+void printHistory(char *commandHistory, int historyCount);
+void createSymbolicLink(char currentDirectory, char *first, char *second);
 
-void runShell ()
+void runShell()
 {
     char command[256];
     char program[256];
@@ -270,7 +270,7 @@ void printHistory(char *commandHistory, int historyCount)
     }
 }
 
-void splitStringThree(char *buffer, char *first, char *second, char * third, char delimiter)
+void splitStringThree(char *buffer, char *first, char *second, char *third, char delimiter)
 {
     int splitted = 0;
     char *pointer = buffer;
@@ -288,7 +288,8 @@ void splitStringThree(char *buffer, char *first, char *second, char * third, cha
             if (splitted == 0)
             {
                 splitted = 1;
-            } else if (splitted == 1)
+            }
+            else if (splitted == 1)
             {
                 splitted = 2;
             }
@@ -308,7 +309,7 @@ void splitStringThree(char *buffer, char *first, char *second, char * third, cha
             else
             {
                 third[thirdLength] = *pointer;
-                thirdLength ++;
+                thirdLength++;
             }
         }
 
@@ -317,5 +318,4 @@ void splitStringThree(char *buffer, char *first, char *second, char * third, cha
     second[secondLength] = 0x0;
     first[firstLength] = 0x0;
     third[thirdLength] = 0x0;
-
 }

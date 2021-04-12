@@ -1,59 +1,12 @@
 // Input output
 void printString(char *string)
 {
-    char *p = string;
-    while (*p != 0x0)
-    {
-        interrupt(0x10, 0x0e00 + *p, 0x000A, 0, 0);
-        p++;
-    }
-    return;
+    interrupt(0x21, 0x00, string, 0, 0);
 }
 
 void readString(char *string)
 {
-    int input = interrupt(0x16, 0, 0, 0, 0);
-    char AH = (char)(input >> 8);
-    char AL = (char)(input & 0x00FF);
-    int length = 0;
-
-    while (!(AL == '\r'))
-    {
-        if (AH == 0x48 && AH == 0x50)
-        {
-            while (length > 0)
-            {
-                printString("\b");
-                string[--length] = 0x00;
-            }
-            string[0] = 0x00;
-            string[1] = AH;
-            return;
-        }
-        if (AL != 0x0)
-        {
-
-            if (AL == '\b' && length > 0)
-            {
-                interrupt(0x10, 0xe00 + '\b', 0xF, 0, 0);
-                interrupt(0x10, 0xe00 + ' ', 0xF, 0, 0);
-                interrupt(0x10, 0xe00 + '\b', 0xF, 0, 0);
-
-                string[--length] = 0x00;
-            }
-            else
-            {
-                printString(&AL);
-                string[length++] = AL;
-            }
-        }
-        input = interrupt(0x16, 0, 0, 0, 0);
-        AH = (char)(input >> 8);
-        AL = (char)(input);
-    }
-    printString("\n\r");
-    string[length] = 0;
-    return;
+    interrupt(0x21, 0x01, string, 0, 0);
 }
 
 // String utility
@@ -94,7 +47,7 @@ int strcmp(char *first, char *second)
 char strswith(char *first, char *second, int length)
 {
     int i;
-    
+
     // printString("Comparing : \r\n");
     // printString(first);
     // printString(" ");
@@ -123,14 +76,11 @@ char strswith(char *first, char *second, int length)
 //string bounded compare
 int strbcmp(char *buffer, int length, char *string)
 {
-    
 
     char i;
     char first[8192];
-    clear(first, 8192);
     i = 0x00;
-    
-    
+
     for (i = 0; i < length; i++)
     {
         first[i] = buffer[i];
@@ -166,17 +116,15 @@ void strsntz(char *buffer, int maxlength)
     return;
 }
 
-
-void strcpy (char * src, char * dst)
+void strcpy(char *src, char *dst)
 {
-    char * temp = src;
+    char *temp = src;
     int index;
     index = 0;
     while (*temp != 0x0)
     {
         dst[index] = *temp;
-        temp ++;
-        index ++;
+        temp++;
+        index++;
     }
 }
-

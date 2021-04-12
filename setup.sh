@@ -14,3 +14,5 @@ cd ../../../
 cd src/loader/folderloader
 go build -o ../../../folderloader.out
 cd ../../../
+
+./ext.sh

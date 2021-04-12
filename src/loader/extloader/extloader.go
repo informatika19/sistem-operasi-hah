@@ -55,17 +55,35 @@ func main() {
 		return
 	}
 
-	// Load source file
-	fileName := os.Args[1]
-	if len(fileName) > 13 {
-		fmt.Println("Name file is too long. Max 13 characters.")
-		return
-	}
+	var fileName string
+	var source *os.File
+	var err error
+	if len(os.Args) == 2 {
+		// Load source file
+		fileName = os.Args[1]
+		if len(fileName) > 13 {
+			fmt.Println("Name file is too long. Max 13 characters.")
+			return
+		}
 
-	source, err := os.Open(fileName)
-	if err != nil {
-		fmt.Printf("File %s is not found.\n", fileName)
-		return
+		source, err = os.Open(fileName)
+		if err != nil {
+			fmt.Printf("File %s is not found.\n", fileName)
+			return
+		}
+	} else {
+		// Load source file
+		fileName = os.Args[2]
+		if len(fileName) > 13 {
+			fmt.Println("Name file is too long. Max 13 characters.")
+			return
+		}
+
+		source, err = os.Open(os.Args[1])
+		if err != nil {
+			fmt.Printf("File %s is not found.\n", os.Args[1])
+			return
+		}
 	}
 	sourceData, _ := ioutil.ReadAll(source)
 	if len(sourceData) > 8192 {

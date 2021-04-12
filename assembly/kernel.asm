@@ -9,6 +9,7 @@ global _interrupt
 global _makeInterrupt21
 extern _handleInterrupt21
 global _printHex
+global _launchProgram
 ;void putInMemory (int segment, int address, char character)
 _putInMemory:
 	push bp

@@ -1,10 +1,12 @@
 void printCurrentDirectory(char currentDirectory);
 void splitString(char *buffer, char *first, char *second, char delimiter);
-void splitStringThree(char *buffer, char *first, char *second, char * third, char delimiter);
-void printHistory (char * commandHistory, int historyCount);
-void createSymbolicLink (char currentDirectory, char * first, char * second);
+void splitStringThree(char *buffer, char *first, char *second, char *third, char delimiter);
+void printHistory(char *commandHistory, int historyCount);
+void printString(char *buffer);
+// void createSymbolicLink(char currentDirectory, char *first, char *second);
+void addParameter(char *param, char currentDirectory);
 
-int main ()
+int main()
 {
     char command[256];
     char program[256];
@@ -23,7 +25,7 @@ int main ()
     int historyCount = 0;
     int arrowPressed = 0;
     historyPointer = -1;
-
+    printString("Shell called\n");
     clear(commandHistory, 256 * 4);
 
     while (1)
@@ -81,73 +83,83 @@ int main ()
                     currentDirectory = indexToMove;
                 }
             }
-            else if (strbcmp(command, 2, "ls"))
-            {
-                // interrupt(0x21, 0x02, file, 0x101, 0);
-                // interrupt(0x21, 0x02, file + 512, 0x102, 0);
-                readSector(file, 0x101);
-                readSector(file + 512, 0x102);
-                for (i = 0; i < 64; i++)
-                {
-                    if (file[i * 16] == currentDirectory)
-                    {
-                        printString(file + i * 16 + 2);
-                        printString("\r\n");
-                    }
-                }
-            }
-            else if (strbcmp(command, 3, "cat"))
-            {
-                splitString(command, program, parameter, ' ');
-                clear(fileBuffer, 8192);
-                // printString(parameter);
-                // printString("\r\n");
-                // if (strcmp("test", parameter))
-                // {
-                //     printString("sama hehe\r\n");
-                // }
-                // printString("\r\n");
-                // printString(parameter);
-                // printString("\r\n");
+            // else if (strbcmp(command, 2, "ls"))
+            // {
+            //     // interrupt(0x21, 0x02, file, 0x101, 0);
+            //     // interrupt(0x21, 0x02, file + 512, 0x102, 0);
+            //     readSector(file, 0x101);
+            //     readSector(file + 512, 0x102);
+            //     for (i = 0; i < 64; i++)
+            //     {
+            //         if (file[i * 16] == currentDirectory)
+            //         {
+            //             printString(file + i * 16 + 2);
+            //             printString("\r\n");
+            //         }
+            //     }
+            // }
+            // else if (strbcmp(command, 3, "cat"))
+            // {
+            //     splitString(command, program, parameter, ' ');
+            //     clear(fileBuffer, 8192);
+            //     // printString(parameter);
+            //     // printString("\r\n");
+            //     // if (strcmp("test", parameter))
+            //     // {
+            //     //     printString("sama hehe\r\n");
+            //     // }
+            //     // printString("\r\n");
+            //     // printString(parameter);
+            //     // printString("\r\n");
 
-                // printInteger(strlen(parameter));
-                // printString("\r\n");
-                // interrupt(0x21, (currentDirectory << 8) + 0x04, fileBuffer, parameter, &flag);
-                readFile(fileBuffer, parameter, &flag, currentDirectory);
-                // printString("\r\n");
-                // printInteger(flag);
-                // printString("\r\n");
+            //     // printInteger(strlen(parameter));
+            //     // printString("\r\n");
+            //     // interrupt(0x21, (currentDirectory << 8) + 0x04, fileBuffer, parameter, &flag);
+            //     readFile(fileBuffer, parameter, &flag, currentDirectory);
+            //     // printString("\r\n");
+            //     // printInteger(flag);
+            //     // printString("\r\n");
 
-                if (flag == -1)
-                {
-                    printString("No such file\n\r");
-                }
-                else
-                {
-                    printString(fileBuffer);
-                    printString("\r\n");
-                }
-            }
-            else if (strbcmp(command, 2, "ln"))
-            {
-                printString("Calling ln\r\n");
-                splitStringThree(command, program, parameter, secondParameter, ' ');
-                createSymbolicLink(currentDirectory, parameter, secondParameter);
-            }
-            else if (strbcmp(command, 7, "history"))
-            {
-                if (historyCount > 0)
-                {
-                    printHistory(commandHistory, historyCount);
-                }
-                else
-                {
-                    printString("No command history\r\n");
-                }
-            }
+            //     if (flag == -1)
+            //     {
+            //         printString("No such file\n\r");
+            //     }
+            //     else
+            //     {
+            //         printString(fileBuffer);
+            //         printString("\r\n");
+            //     }
+            // }
+            // else if (strbcmp(command, 2, "ln"))
+            // {
+            //     printString("Calling ln\r\n");
+            //     splitStringThree(command, program, parameter, secondParameter, ' ');
+            //     createSymbolicLink(currentDirectory, parameter, secondParameter);
+            // }
+            // else if (strbcmp(command, 7, "history"))
+            // {
+            //     if (historyCount > 0)
+            //     {
+            //         printHistory(commandHistory, historyCount);
+            //     }
+            //     else
+            //     {
+            //         printString("No command history\r\n");
+            //     }
+            // }
             else
             {
-                printString("Unknown command\r\n");
+                splitString(command, program, parameter, ' ');
+                addParameter(parameter, currentDirectory);
+                interrupt(0x21, 0xFF06, program, 0X3000, &flag);
+                if (flag == -1)
+                {
+                    printString("No program found\n\r");
+                }
+                else
+                {
+                    printString("\r\n");
+                }
             }
 
             if (historyCount < 4)
@@ -171,6 +183,25 @@ int main ()
             // printHistory(commandHistory, historyCount);
         }
     }
+}
+void printString(char *buffer)
+{
+    interrupt(0x21, 0x00, buffer, 0, 0);
+}
+void addParameter(char *param, char currentDirectory)
+{
+    char buffer[512];
+    int i;
+    char *temp = param;
+    buffer[0] = currentDirectory;
+    i = 1;
+    while (*temp != 0x00)
+    {
+        buffer[i] = *temp;
+        temp++;
+        i++;
+    }
+    interrupt(0x21, 0x03, buffer, 0x404, 0);
 }
 
 void printCurrentDirectory(char currentDirectory)
@@ -270,7 +301,7 @@ void printHistory(char *commandHistory, int historyCount)
     }
 }
 
-void splitStringThree(char *buffer, char *first, char *second, char * third, char delimiter)
+void splitStringThree(char *buffer, char *first, char *second, char *third, char delimiter)
 {
     int splitted = 0;
     char *pointer = buffer;
@@ -288,7 +319,8 @@ void splitStringThree(char *buffer, char *first, char *second, char * third, cha
             if (splitted == 0)
             {
                 splitted = 1;
-            } else if (splitted == 1)
+            }
+            else if (splitted == 1)
             {
                 splitted = 2;
             }
@@ -308,7 +340,7 @@ void splitStringThree(char *buffer, char *first, char *second, char * third, cha
             else
             {
                 third[thirdLength] = *pointer;
-                thirdLength ++;
+                thirdLength++;
             }
         }
 
@@ -317,5 +349,4 @@ void splitStringThree(char *buffer, char *first, char *second, char * third, cha
     second[secondLength] = 0x0;
     first[firstLength] = 0x0;
     third[thirdLength] = 0x0;
-
 }
