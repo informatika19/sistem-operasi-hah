@@ -2,7 +2,8 @@ void printCurrentDirectory(char currentDirectory);
 void splitString(char *buffer, char *first, char *second, char delimiter);
 void splitStringThree(char *buffer, char *first, char *second, char *third, char delimiter);
 void printHistory(char *commandHistory, int historyCount);
-void printString(char *buffer);
+int folderIndex (char *file, char parent, char *path);
+// void printString(char *buffer);
 // void createSymbolicLink(char currentDirectory, char *first, char *second);
 void addParameter(char *param, char currentDirectory);
 
@@ -25,7 +26,7 @@ int main()
     int historyCount = 0;
     int arrowPressed = 0;
     historyPointer = -1;
-    printString("Shell called\n");
+    // printString("Shell called\n");
     clear(commandHistory, 256 * 4);
 
     while (1)
@@ -36,6 +37,8 @@ int main()
             printCurrentDirectory(currentDirectory);
         }
         readString(command);
+        // printString("Else called\n");
+
         printString("\r\n");
         // interrupt(0x21, 0x01, command, 0, 0);
         if (command[0] == 0x00)
@@ -151,7 +154,7 @@ int main()
             {
                 splitString(command, program, parameter, ' ');
                 addParameter(parameter, currentDirectory);
-                interrupt(0x21, 0xFF06, program, 0X3000, &flag);
+                interrupt(0x21, 0xFF06, program, 0x3000, &flag);
                 if (flag == -1)
                 {
                     printString("No program found\n\r");
@@ -183,25 +186,29 @@ int main()
             // printHistory(commandHistory, historyCount);
         }
     }
+    return 0;
 }
-void printString(char *buffer)
-{
-    interrupt(0x21, 0x00, buffer, 0, 0);
-}
+// void printString(char *buffer)
+// {
+//     interrupt(0x21, 0x00, buffer, 0, 0);
+// }
 void addParameter(char *param, char currentDirectory)
 {
-    char buffer[512];
+    char otherBuffer[512];
     int i;
     char *temp = param;
-    buffer[0] = currentDirectory;
+    clear(otherBuffer, 512);
+    otherBuffer[0] = currentDirectory;
     i = 1;
+    // printString(param);
     while (*temp != 0x00)
     {
-        buffer[i] = *temp;
+        otherBuffer[i] = *temp;
         temp++;
         i++;
     }
-    interrupt(0x21, 0x03, buffer, 0x404, 0);
+    otherBuffer[i] = 0x0;
+    interrupt(0x21, 0x03, otherBuffer, 0x404, 0);
 }
 
 void printCurrentDirectory(char currentDirectory)
@@ -251,43 +258,120 @@ void printCurrentDirectory(char currentDirectory)
     printString("$ ");
 }
 
-void splitString(char *buffer, char *first, char *second, char delimiter)
+int folderIndex (char *file, char parent, char *path) 
 {
-    int splitted = 0;
-    char *pointer = buffer;
-    int firstLength;
-    int secondLength;
+    char P = parent;
+    char pos = 0x00;
+    char idx = 0x00;
 
-    firstLength = 0;
-    secondLength = 0;
-    while (*pointer != 0x00)
+    if (path[0] == '/')
     {
-        if (*pointer == delimiter)
+        pos++;
+        P = 0xFF;
+    }
+
+    while (path[pos] != 0x00)
+    {
+        if (strbcmp(path + pos, 1, "/"))
         {
-            if (splitted == 0)
+            if (strbcmp(path + pos, 2, "//"))
             {
-                splitted = 1;
+                return -1;
             }
+            pos++;
+        }
+        else if (strbcmp(path + pos, 3, "../"))
+        {
+            // printString("Masuk sini \r\n");
+            if (P == 0xFF)
+            {
+                return -1;
+            }
+            P = file[P * 16];
+            pos += 3;
+        }
+        else if (strbcmp(path + pos, 2, "./"))
+        {
+            pos += 2;
         }
         else
         {
-            if (splitted == 1)
+            if (P != file[idx * 16])
             {
-                second[secondLength] = *pointer;
-                secondLength++;
+                idx++;
+            }
+            else if (file[idx * 16 + 2] == 0)
+            {
+                idx++;
+            }
+            else if (strswith(path + pos, file + (idx * 16 + 2), 14))
+            {
+                
+                pos += strlen(file + (idx * 16 + 2));
+                P = idx;
+                // return idx;
+
+                idx = 0x00;
             }
             else
             {
-                first[firstLength] = *pointer;
-                firstLength++;
+                idx++;
             }
         }
 
-        pointer++;
+        if (idx > 0x3f)
+        {
+            return -1;
+        }
     }
-    second[secondLength] = 0x0;
-    first[firstLength] = 0x0;
+
+    if (file[P * 16 + 1] == 0XFF || P == 0XFF)
+    {
+        return P;
+    }
+    else
+    {
+        // File not found atau file tersebut adalah folder
+        return -1;
+    }
 }
+// void splitString(char *buffer, char *first, char *second, char delimiter)
+// {
+//     int splitted = 0;
+//     char *pointer = buffer;
+//     int firstLength;
+//     int secondLength;
+
+//     firstLength = 0;
+//     secondLength = 0;
+//     while (*pointer != 0x00)
+//     {
+//         if (*pointer == delimiter)
+//         {
+//             if (splitted == 0)
+//             {
+//                 splitted = 1;
+//             }
+//         }
+//         else
+//         {
+//             if (splitted == 1)
+//             {
+//                 second[secondLength] = *pointer;
+//                 secondLength++;
+//             }
+//             else
+//             {
+//                 first[firstLength] = *pointer;
+//                 firstLength++;
+//             }
+//         }
+
+//         pointer++;
+//     }
+//     second[secondLength] = 0x0;
+//     first[firstLength] = 0x0;
+// }
 
 void printHistory(char *commandHistory, int historyCount)
 {

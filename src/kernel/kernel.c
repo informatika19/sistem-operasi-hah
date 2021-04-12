@@ -55,15 +55,15 @@ int main()
 
     // runShell();
 
-    executeProgram("shell", 0x2000, &flag, 0xFF);
+    executeProgram("shell", 0x5000, &flag, 0xFF);
     // readString(buffer);
     // while (1) {}
     // readFile(buffer, "test", &flag, 0xFF);
     // printString(buffer);
     // executeProgram("test.txt", 0x2000, &flag, 0xFF);
-    while (1)
-    {
-    }
+    // while (1)
+    // {
+    // }
 }
 
 void clear(char *buffer, int length)
@@ -80,6 +80,7 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
     char AL, AH;
     AL = (char)(AX);
     AH = (char)(AX >> 8);
+    
 
     switch (AL)
     {
@@ -232,8 +233,10 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
     int isSuccess;
     char fileBuffer[512 * 16];
     // Buka file dengan readFile
-    readFile(&fileBuffer, filename, &isSuccess, parentIndex);
+    // interrupt(0x21, 0, "Test", 0, 0);
+    readFile(fileBuffer, filename, &isSuccess, parentIndex);
     // If success, salin dengan putInMemory
+
     if (isSuccess)
     {
         // launchProgram

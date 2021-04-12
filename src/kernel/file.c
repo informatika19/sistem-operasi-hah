@@ -161,6 +161,7 @@ void readFile(char *buffer, char *path, int *result, char parentIndex)
     // printString("Reading file\r\n");
     readSector(file, 0x101);
     readSector(file + 512, 0x102);
+
     P = pathIndex(file, parentIndex, path);
     // P = 1;
     if (P == -1)

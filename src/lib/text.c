@@ -1,8 +1,8 @@
 // Input output
-void printString(char *string)
-{
-    interrupt(0x21, 0x00, string, 0, 0);
-}
+// void printString(char *string)
+// {
+//     interrupt(0x21, 0x00, string, 0, 0);
+// }
 
 void readString(char *string)
 {
@@ -127,4 +127,50 @@ void strcpy(char *src, char *dst)
         temp++;
         index++;
     }
+}
+
+void clear(char * buffer, int length) 
+{
+    int i;
+    for (i = 0; i < length; i++)
+    {
+        *(buffer + i) = 0x0000;
+    }
+}
+void splitString(char *buffer, char *first, char *second, char delimiter)
+{
+    int splitted = 0;
+    char *pointer = buffer;
+    int firstLength;
+    int secondLength;
+
+    firstLength = 0;
+    secondLength = 0;
+    while (*pointer != 0x00)
+    {
+        if (*pointer == delimiter)
+        {
+            if (splitted == 0)
+            {
+                splitted = 1;
+            }
+        }
+        else
+        {
+            if (splitted == 1)
+            {
+                second[secondLength] = *pointer;
+                secondLength++;
+            }
+            else
+            {
+                first[firstLength] = *pointer;
+                firstLength++;
+            }
+        }
+
+        pointer++;
+    }
+    second[secondLength] = 0x0;
+    first[firstLength] = 0x0;
 }

@@ -1,5 +1,5 @@
 void printCurrentDirectory(char currentDirectory);
-void splitString(char *buffer, char *first, char *second, char delimiter);
+// void splitString(char *buffer, char *first, char *second, char delimiter);
 void splitStringThree(char *buffer, char *first, char *second, char *third, char delimiter);
 void printHistory(char *commandHistory, int historyCount);
 void createSymbolicLink(char currentDirectory, char *first, char *second);
