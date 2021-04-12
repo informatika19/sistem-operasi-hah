@@ -16,3 +16,4 @@ go build -o ../../../folderloader.out
 cd ../../../
 
 ./ext.sh
+./shell.sh
