@@ -1,23 +1,31 @@
 int main()
 {
     char currentDirectory;
-    char *filename[16];
-    char *buffer[512 * 16];
+    char filename[13];
+    char buffer[8192];
     char flag;
-    printString("cat called\n");
+    clear(buffer, 8192);
+    clear(filename, 13);
     // clear(buffer, 512 * 16);
     // printString("CAT CALLED\n");
-    // getParam(&currentDirectory, filename);
+    printString("A\r\n");
+    getParam(&currentDirectory, filename);
+    printString(filename);
+    printString("\r\n\r\n");
+    if (currentDirectory == 0xFF)
+    {
+        printString("Current directory : 0xFF\r\n");
+    }
     // if (currentDirectory == 0xFF)
     // {
     //     printString("Benar");
     // }
-    returnToSender();
-    return 0;
+    // returnToSender();
+    // return 0;
     // printString(&currentDirectory);
-    // readFile(buffer, filename, &flag, currentDirectory);
-    // printString(buffer);
-
-    // printString("buffer");
+    readFile(buffer, filename, &flag, currentDirectory);
+    printString("Isi File:\r\n");
+    printString(buffer);
+    backToShell();
     // returnToSender();
 }

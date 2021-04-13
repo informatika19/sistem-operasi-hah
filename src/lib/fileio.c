@@ -4,10 +4,6 @@ void printString(char *buffer)
 }
 void readFile(char *buffer, char *path, int *result, char parentIndex)
 {
-    // if (parentIndex == 0xFF)
-    // {
-    //     printString("Benar\n");
-    // }
     interrupt(0x21, (parentIndex << 8) + 0x04, buffer, path, result);
 }
 
@@ -16,9 +12,9 @@ void writeFile(char *buffer, char *path, int *result, char parentIndex)
     interrupt(0x21, (parentIndex << 8) + 0x05, buffer, path, result);
 }
 
-void readSector (char * buffer, int sector)
+void readSector(char *buffer, int sector)
 {
-    interrupt(0x21, 0x02, buffer, sector,0);
+    interrupt(0x21, 0x02, buffer, sector, 0);
 }
 //DELETE FILE
 //TODO

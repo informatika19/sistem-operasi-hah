@@ -54,8 +54,9 @@ int main()
     // printString("\r\n");
 
     // runShell();
-
-    executeProgram("shell", 0x5000, &flag, 0xFF);
+    // readFile(buffer, "test.txt", &flag, 0xFF);
+    // printString(buffer);
+    executeProgram("ls", 0x5000, &flag, 0xFF);
     // readString(buffer);
     // while (1) {}
     // readFile(buffer, "test", &flag, 0xFF);
@@ -80,7 +81,6 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
     char AL, AH;
     AL = (char)(AX);
     AH = (char)(AX >> 8);
-    
 
     switch (AL)
     {
@@ -102,7 +102,7 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
     case 0x05:
         writeFile(BX, CX, DX, AH);
         break;
-    case 0x6:
+    case 0x06:
         executeProgram(BX, CX, DX, AH);
         break;
     default:

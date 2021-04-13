@@ -35,7 +35,7 @@ int strcmp(char *first, char *second)
 char strswith(char *first, char *second, int length)
 {
     int i;
-    
+
     // printString("Comparing : \r\n");
     // printString(first);
     // printString(" ");
@@ -64,24 +64,17 @@ char strswith(char *first, char *second, int length)
 //string bounded compare
 int strbcmp(char *buffer, int length, char *string)
 {
-    
 
     char i;
     char first[8192];
     clear(first, 8192);
     i = 0x00;
-    
-    
+
     for (i = 0; i < length; i++)
     {
         first[i] = buffer[i];
     }
-    // first[++i] = 0x00;
-    // printString("Comparing : \r\n");
-    // printInteger(strlen(first));
-    // printString("\r\n");
-    // printInteger(strlen(string));
-    // printString("\r\n");
+    first[++i] = 0x00;
     return strcmp(first, string);
 }
 
@@ -107,17 +100,15 @@ void strsntz(char *buffer, int maxlength)
     return;
 }
 
-
-void strcpy (char * src, char * dst)
+void strcpy(char *src, char *dst)
 {
-    char * temp = src;
+    char *temp = src;
     int index;
     index = 0;
     while (*temp != 0x0)
     {
         dst[index] = *temp;
-        temp ++;
-        index ++;
+        temp++;
+        index++;
     }
 }
-

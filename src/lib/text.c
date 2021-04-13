@@ -85,12 +85,7 @@ int strbcmp(char *buffer, int length, char *string)
     {
         first[i] = buffer[i];
     }
-    // first[++i] = 0x00;
-    // printString("Comparing : \r\n");
-    // printInteger(strlen(first));
-    // printString("\r\n");
-    // printInteger(strlen(string));
-    // printString("\r\n");
+    first[++i] = 0x00;
     return strcmp(first, string);
 }
 
@@ -129,7 +124,7 @@ void strcpy(char *src, char *dst)
     }
 }
 
-void clear(char * buffer, int length) 
+void clear(char *buffer, int length)
 {
     int i;
     for (i = 0; i < length; i++)
@@ -139,10 +134,13 @@ void clear(char * buffer, int length)
 }
 void splitString(char *buffer, char *first, char *second, char delimiter)
 {
-    int splitted = 0;
-    char *pointer = buffer;
+    int splitted;
+    char *pointer;
     int firstLength;
     int secondLength;
+
+    pointer = buffer;
+    splitted = 0;
 
     firstLength = 0;
     secondLength = 0;

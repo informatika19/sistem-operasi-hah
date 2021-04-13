@@ -7,7 +7,8 @@ void getParam(char *currentDirectory, char *param)
     interrupt(0x21, 0x02, buffer, 0x404, 0);
     // printString(buffer);
     *currentDirectory = buffer[0];
-    temp = buffer + 1;
+    temp = buffer;
+    temp++;
     i = 0;
     while (*temp != 0x00)
     {

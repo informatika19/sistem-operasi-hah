@@ -45,7 +45,7 @@ int pathIndex(char *file, char parent, char *path)
             }
             else if (strswith(path + pos, file + (idx * 16 + 2), 14))
             {
-                
+
                 pos += strlen(file + (idx * 16 + 2));
                 P = idx;
                 // return idx;
@@ -75,7 +75,7 @@ int pathIndex(char *file, char parent, char *path)
     }
 }
 
-int folderIndex (char *file, char parent, char *path) 
+int folderIndex(char *file, char parent, char *path)
 {
     char P = parent;
     char pos = 0x00;
@@ -123,7 +123,7 @@ int folderIndex (char *file, char parent, char *path)
             }
             else if (strswith(path + pos, file + (idx * 16 + 2), 14))
             {
-                
+
                 pos += strlen(file + (idx * 16 + 2));
                 P = idx;
                 // return idx;
@@ -166,7 +166,7 @@ void readFile(char *buffer, char *path, int *result, char parentIndex)
     // P = 1;
     if (P == -1)
     {
-        *result = -1;
+        *result = 0;
         return;
     }
     readSector(sector, 0x103);
@@ -295,13 +295,13 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex)
     writeSector(sector, 0x103);
 }
 
-void createSymbolicLink (char currentDirectory, char * first, char * second)
+void createSymbolicLink(char currentDirectory, char *first, char *second)
 {
     int indexPath;
     int i;
     int idx;
     char file[1024];
-    char * pointer;
+    char *pointer;
 
     readSector(file, 0x101);
     readSector(file + 512, 0x102);
@@ -322,12 +322,10 @@ void createSymbolicLink (char currentDirectory, char * first, char * second)
     while (*pointer != 0x0)
     {
         file[i * 16 + 2 + idx] = *pointer;
-        pointer ++;
-        idx ++;
+        pointer++;
+        idx++;
     }
 
     writeSector(file, 0x101);
     writeSector(file + 512, 0x102);
-
-
 }
