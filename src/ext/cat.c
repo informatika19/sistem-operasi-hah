@@ -8,14 +8,14 @@ int main()
     clear(filename, 13);
     // clear(buffer, 512 * 16);
     // printString("CAT CALLED\n");
-    printString("A\r\n");
+    // printString("A\r\n");
     getParam(&currentDirectory, filename);
-    printString(filename);
-    printString("\r\n\r\n");
-    if (currentDirectory == 0xFF)
-    {
-        printString("Current directory : 0xFF\r\n");
-    }
+    // printString(filename);
+    // printString("\r\n\r\n");
+    // if (currentDirectory == 0xFF)
+    // {
+    //     printString("Current directory : 0xFF\r\n");
+    // }
     // if (currentDirectory == 0xFF)
     // {
     //     printString("Benar");
@@ -24,8 +24,7 @@ int main()
     // return 0;
     // printString(&currentDirectory);
     readFile(buffer, filename, &flag, currentDirectory);
-    printString("Isi File:\r\n");
+    // printString("Isi File:\r\n");
     printString(buffer);
     backToShell();
-    // returnToSender();
 }

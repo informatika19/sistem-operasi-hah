@@ -6,7 +6,7 @@ int main()
     char currentDirectory;
 
     getParam(&currentDirectory, param);
-    currentDirectory = 0xFF;
+    // currentDirectory = 0xFF;
     readSector(file, 0x101);
     readSector(file + 512, 0x102);
     for (i = 0; i < 64; i++)

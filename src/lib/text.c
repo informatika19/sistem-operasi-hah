@@ -172,3 +172,202 @@ void splitString(char *buffer, char *first, char *second, char delimiter)
     second[secondLength] = 0x0;
     first[firstLength] = 0x0;
 }
+
+void splitToFolderAndFilename (char * path, char * filename, char * folder) {
+    char temp[16];
+    int i;
+    int pathLength;
+    int tempIdx;
+    int nameLength;
+    int endFolderIndex;
+    for (i = 0; i < 16; i++) {
+        temp[i] = 0x00;
+    }
+    endFolderIndex = -1;
+    pathLength = strlen(path);
+    tempIdx = pathLength - 1;
+    i = 0;
+    while (tempIdx >= 0) {
+        if (path[tempIdx] == '/') {
+            endFolderIndex = tempIdx;
+            break;
+        }
+        temp[i] = path[tempIdx];
+        tempIdx -= 1;
+    }
+    if (endFolderIndex == -1) {
+        endFolderIndex = 0;
+        *filename = 0x00;
+    }
+    else {
+        
+        for (i = 0; i <= endFolderIndex; i++) {
+            folder[i] = path[i];
+        }
+    }
+    
+    nameLength = strlen(temp);
+    nameLength -= 1;
+    i = 0;
+    while (nameLength >= 0) {
+        filename[i] = temp[nameLength];
+        i += 1;
+        nameLength -= 1;
+    }
+    
+}
+
+int pathIndex(char *file, char parent, char *path)
+{
+    char P = parent;
+    char pos = 0x00;
+    char idx = 0x00;
+
+    if (path[0] == '/')
+    {
+        pos++;
+        P = 0xFF;
+    }
+
+    while (path[pos] != 0x00)
+    {
+        if (strbcmp(path + pos, 1, "/"))
+        {
+            if (strbcmp(path + pos, 2, "//"))
+            {
+                return -1;
+            }
+            pos++;
+        }
+        else if (strbcmp(path + pos, 3, "../"))
+        {
+            if (P == 0xFF)
+            {
+                return -1;
+            }
+            P = file[P * 16];
+            pos += 3;
+        }
+        else if (strbcmp(path + pos, 2, "./"))
+        {
+            pos += 2;
+        }
+        else
+        {
+            if (P != file[idx * 16])
+            {
+                idx++;
+            }
+            else if (file[idx * 16 + 2] == 0)
+            {
+                idx++;
+            }
+            else if (strswith(path + pos, file + (idx * 16 + 2), 14))
+            {
+
+                pos += strlen(file + (idx * 16 + 2));
+                P = idx;
+                // return idx;
+
+                idx = 0x00;
+            }
+            else
+            {
+                idx++;
+            }
+        }
+
+        if (idx > 0x3f)
+        {
+            return -1;
+        }
+    }
+
+    if (P != 0xFF && file[P * 16 + 1] != 0XFF)
+    {
+        return P;
+    }
+    else
+    {
+        // File not found atau file tersebut adalah folder
+        return -1;
+    }
+}
+
+int folderIndex(char *file, char parent, char *path)
+{
+    char P = parent;
+    char pos = 0x00;
+    char idx = 0x00;
+
+    if (path[0] == '/')
+    {
+        pos++;
+        P = 0xFF;
+    }
+
+    while (path[pos] != 0x00)
+    {
+        if (strbcmp(path + pos, 1, "/"))
+        {
+            if (strbcmp(path + pos, 2, "//"))
+            {
+                return -1;
+            }
+            pos++;
+        }
+        else if (strbcmp(path + pos, 3, "../"))
+        {
+            // printString("Masuk sini \r\n");
+            if (P == 0xFF)
+            {
+                return -1;
+            }
+            P = file[P * 16];
+            pos += 3;
+        }
+        else if (strbcmp(path + pos, 2, "./"))
+        {
+            pos += 2;
+        }
+        else
+        {
+            if (P != file[idx * 16])
+            {
+                idx++;
+            }
+            else if (file[idx * 16 + 2] == 0)
+            {
+                idx++;
+            }
+            else if (strswith(path + pos, file + (idx * 16 + 2), 14))
+            {
+
+                pos += strlen(file + (idx * 16 + 2));
+                P = idx;
+                // return idx;
+
+                idx = 0x00;
+            }
+            else
+            {
+                idx++;
+            }
+        }
+
+        if (idx > 0x3f)
+        {
+            return -1;
+        }
+    }
+
+    if (file[P * 16 + 1] == 0XFF || P == 0XFF)
+    {
+        return P;
+    }
+    else
+    {
+        // File not found atau file tersebut adalah folder
+        return -1;
+    }
+}

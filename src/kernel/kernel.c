@@ -56,15 +56,16 @@ int main()
     // runShell();
     // readFile(buffer, "test.txt", &flag, 0xFF);
     // printString(buffer);
-    executeProgram("ls", 0x5000, &flag, 0xFF);
+    // executeProgram("ls", 0x5000, &flag, 0xFF);
+    makeFolder (0xFF, "folder", &flag);
     // readString(buffer);
     // while (1) {}
     // readFile(buffer, "test", &flag, 0xFF);
     // printString(buffer);
     // executeProgram("test.txt", 0x2000, &flag, 0xFF);
-    // while (1)
-    // {
-    // }
+    while (1)
+    {
+    }
 }
 
 void clear(char *buffer, int length)
@@ -104,6 +105,9 @@ void handleInterrupt21(int AX, int BX, int CX, int DX)
         break;
     case 0x06:
         executeProgram(BX, CX, DX, AH);
+        break;
+    case 0x07:
+        makeFolder(AH, CX, DX);
         break;
     default:
         printString("Invalid interrupt");
