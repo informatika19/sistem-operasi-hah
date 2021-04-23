@@ -17,4 +17,5 @@ int main()
             printString("\r\n");
         }
     }
+    backToShell();
 }

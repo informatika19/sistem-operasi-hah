@@ -16,6 +16,11 @@ void readSector(char *buffer, int sector)
 {
     interrupt(0x21, 0x02, buffer, sector, 0);
 }
+
+void writeSector(char *buffer, int sector)
+{
+    interrupt(0x21, 0x03, buffer, sector, 0);
+}
 //DELETE FILE
 //TODO
 

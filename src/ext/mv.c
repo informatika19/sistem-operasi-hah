@@ -1,7 +1,6 @@
-int main () {
+int main()
+{
     char file[1024];
-    char sector[512];
-    char map[512];
     char folderName[512];
     char filename[16];
     char param[512];
@@ -11,7 +10,7 @@ int main () {
     int idx;
     int newFolderIdx;
     int i;
-    char * temp;
+    char *temp;
     clear(param, 512);
     clear(folderName, 512);
     clear(src, 512);
@@ -30,17 +29,20 @@ int main () {
     newFolderIdx = folderIndex(file, currentDirectory, folderName);
 
     file[16 * idx] = newFolderIdx;
-    for (i = 0; i < 14; i++) {
+    for (i = 0; i < 14; i++)
+    {
         file[16 * idx + 2 + i] = 0x00;
     }
     temp = filename;
     i = 0;
-    while (*temp != 0x00) {
+    while (*temp != 0x00)
+    {
         file[16 * idx + 2 + i] = *temp;
-        temp ++;
-        i ++;
+        temp++;
+        i++;
     }
-    
+
     writeSector(file, 0x101);
     writeSector(file + 512, 0x102);
+    backToShell();
 }
