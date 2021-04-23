@@ -1,8 +1,8 @@
 // Input output
-// void printString(char *string)
-// {
-//     interrupt(0x21, 0x00, string, 0, 0);
-// }
+void printString(char *string)
+{
+    interrupt(0x21, 0x00, string, 0, 0);
+}
 
 void readString(char *string)
 {
@@ -173,48 +173,55 @@ void splitString(char *buffer, char *first, char *second, char delimiter)
     first[firstLength] = 0x0;
 }
 
-void splitToFolderAndFilename (char * path, char * filename, char * folder) {
+void splitToFolderAndFilename(char *path, char *filename, char *folder)
+{
     char temp[16];
     int i;
     int pathLength;
     int tempIdx;
     int nameLength;
     int endFolderIndex;
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < 16; i++)
+    {
         temp[i] = 0x00;
     }
     endFolderIndex = -1;
     pathLength = strlen(path);
     tempIdx = pathLength - 1;
     i = 0;
-    while (tempIdx >= 0) {
-        if (path[tempIdx] == '/') {
+    while (tempIdx >= 0)
+    {
+        if (path[tempIdx] == '/')
+        {
             endFolderIndex = tempIdx;
             break;
         }
         temp[i] = path[tempIdx];
         tempIdx -= 1;
     }
-    if (endFolderIndex == -1) {
+    if (endFolderIndex == -1)
+    {
         endFolderIndex = 0;
         *filename = 0x00;
     }
-    else {
-        
-        for (i = 0; i <= endFolderIndex; i++) {
+    else
+    {
+
+        for (i = 0; i <= endFolderIndex; i++)
+        {
             folder[i] = path[i];
         }
     }
-    
+
     nameLength = strlen(temp);
     nameLength -= 1;
     i = 0;
-    while (nameLength >= 0) {
+    while (nameLength >= 0)
+    {
         filename[i] = temp[nameLength];
         i += 1;
         nameLength -= 1;
     }
-    
 }
 
 int pathIndex(char *file, char parent, char *path)
